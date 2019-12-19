@@ -6,11 +6,11 @@
 				<view class="fs24 ftw tit">{{userInfoData.score}}</view>
 				<view class="icon fs13 flexCenter">积分</view>
 			</view>
-			<view class="item flexColumn">
+			<view class="item flexColumn" @click="Router.navigateTo({route:{path:'/pages/integralMXi/integralMXi'}})">
 				<view class="fs13 tit">积分明细</view>
 				<view class="icon flexCenter"><image src="../../static/images/integral-icon.png" mode=""></view>
 			</view>
-			<view class="item flexColumn">
+			<view class="item flexColumn"  @click="Router.navigateTo({route:{path:'/pages/integralRecord/integralRecord'}})">
 				<view class="fs13 tit">兑换记录</view>
 				<view class="icon flexCenter"><image src="../../static/images/integral-icon1.png" mode=""></image></view>
 			</view>
@@ -28,10 +28,10 @@
 						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flexRowBetween B-price fs12 color6">
 							<view>单价：{{item.price}}积分</view>
-							<view style="border: 1px solid #666;padding: 5rpx;border-radius:5rpx">
+							<view class="jf-num">
 								{{canBuy?'兑换':'积分不足'}}
 							</view>
-							
+							<view class="jf-num godui" @click="Router.navigateTo({route:{path:'/pages/integral_orderConfirm/integral_orderConfirm'}})">确认兑换</view>
 						</view>
 					</view>
 				</view>
@@ -148,5 +148,8 @@
 	.intg_head .item .tit{padding-bottom: 20rpx; line-height: 60rpx;}
 	.intg_head .item .icon{line-height: 56rpx;}
 	.intg_head .item .icon image{width: 56rpx; height: 56rpx;}
+	
+	.jf-num{border: 1px solid #666;padding:0 10rpx;border-radius:8rpx;position: relative; z-index: 11;}
+	.jf-num.godui{border-color:#ff2121; color: #ff2121;}
 </style>
 

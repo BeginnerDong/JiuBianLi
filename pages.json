@@ -283,6 +283,27 @@
 				"navigationBarTitleText": "查看明细",
 				"onReachBottomDistance":100
 			}
+		},
+		{
+			"path": "pages/integral_orderConfirm/integral_orderConfirm",
+			"style": {
+				"navigationBarTitleText": "订单确认",
+				"onReachBottomDistance":100
+			}
+		},
+		{
+			"path": "pages/integralMXi/integralMXi",
+			"style": {
+				"navigationBarTitleText": "积分明细",
+				"onReachBottomDistance":100
+			}
+		},
+		{
+			"path": "pages/integralRecord/integralRecord",
+			"style": {
+				"navigationBarTitleText": "积分记录",
+				"onReachBottomDistance":100
+			}
 		}
 	],
 	
