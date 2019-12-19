@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="center myHead flexColumn whiteBj">
-			<view class="mny ftw">0.00</view>
+			<view class="mny ftw">{{mainData.balance}}</view>
 			<view class="flex fs13 mgt10"><image style="width: 28rpx; height: 30rpx;margin-right: 10rpx;" src="../../static/images/top-up-icon.png" mode=""></image>余额(元)</view>
 			<view class="flex fs12 pdtb20" @click="Router.navigateTo({route:{path:'/pages/user-rechargeDetail/user-rechargeDetail'}})"><image style="width: 28rpx; height: 30rpx;margin-right: 10rpx;" src="../../static/images/top-up-icon1.png" mode=""></image>查看明细</view>
 		</view>
@@ -9,31 +9,33 @@
 		
 		<view class="pdlr4 whiteBj">
 			<view class="fs14 ftw pdt15">充值金额</view>
-			<view class="input-money pdtb10"><input type="number" value="100" placeholder="请输入金额" /></view>
+			<view class="input-money pdtb10" v-if="curr==5">
+				<input type="number" placeholder="请输入金额" v-model="price"/>
+			</view>
 			
 			<view class="specsList flexRowBetween center fs16 color6 pdt15 ftw" >
-				<view class="item" :class="curr==index?'on':''" @click="changeCurr(index)" v-for="(item,index) in specsList" :key="index">{{item}}</view>
+				<view class="item" :class="curr==index?'on':''" 
+				@click="changeCurr(index)" v-for="(item,index) in specsList" :key="index">{{item}}</view>
+				<view class="item" :class="curr==5?'on':''"
+				@click="changeCurr(5)"  :key="index">其他金额</view>
 			</view>
 		</view>
 		
 		<view class="b-fixBtn center submitbtn whiteBj">
 			<view class="fs12 mgb5">商务部单用途商业预卡企业备案编码：412353001.21</view>
-			<button class="btn" type="button">立即充值</button>
-			<view class="fs12 mgt5 flexCenter">点击充值即同意<view class="pubColor" @click="userzcShow">《预付卡使用章程》</view>。余额不可提现、退还。</view>
+			<button class="btn" type="button" @click="addOrder()">立即充值</button>
+			<view class="fs12 mgt5 flexCenter">点击充值即同意<view class="pubColor" @click="userzcShow">
+			《{{artData.title}}》
+			</view>。余额不可提现、退还。</view>
 		</view>
 		
 		<!-- 章程弹框 -->
 		<view class="xieyiAlert" v-show="is_userzcShow">
 			<view class="infor">
-				<view class="center pdtb10">预付卡使用章程</view>
+				<view class="center pdtb10">{{artData.title}}</view>
 				<view class="cont fs13">
-					<view>1、龙口市东海工业园发哈市风行风烘干机打发股东会撒娇立法会估计都撒好几个回访近二手房。</view>
-					<view>2、龙口市东海工业园发哈市风行风烘干机打发股东会撒娇立法会估计都撒好几个回访近二手房。</view>
-					<view>3、龙口市东海工业园发哈市风行风烘干机打发股东会撒娇立法会估计都撒好几个回访近二手房。</view>
-					<view>4、龙口市东海工业园发哈市风行风烘干机打发股东会撒娇立法会估计都撒好几个回访近二手房。</view><view>1、龙口市东海工业园发哈市风行风烘干机打发股东会撒娇立法会估计都撒好几个回访近二手房。</view>
-					<view>2、龙口市东海工业园发哈市风行风烘干机打发股东会撒娇立法会估计都撒好几个回访近二手房。</view>
-					<view>3、龙口市东海工业园发哈市风行风烘干机打发股东会撒娇立法会估计都撒好几个回访近二手房。</view>
-					<view>4、龙口市东海工业园发哈市风行风烘干机打发股东会撒娇立法会估计都撒好几个回访近二手房。</view>
+					<view class="content ql-editor" style="padding: 0;" v-html="artData.content">
+					</view>
 				</view>
 				<view class="">
 					<view class="colseBtn" style="top: auto;bottom: 40rpx;" @click="userzcShow">×</view>
@@ -54,32 +56,184 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				specsList:['100元','200元','500元','800元','1000元','其他金额'],
-				curr:0,
-				is_userzcShow:false
+				specsList:['100元','200元','500元','800元','1000元'],
+				curr:-1,
+				is_userzcShow:false,
+				price:0,
+				orderId:'',
+				mainData:{},
+				artData:{}
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getMainData','getArtData'], self);
 		},
+		
 		methods: {
+			
+			getArtData() {
+				const self = this;
+				console.log('852369')
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id:2
+				};
+				postData.getBefore = {
+					caseData: {
+						tableName: 'Label',
+						searchItem: {
+							title: ['=', ['充值']],
+						},
+						middleKey: 'menu_id',
+						key: 'id',
+						condition: 'in',
+					},
+				};
+				const callback = (res) => {
+					if (res.solely_code == 100000 && res.info.data[0]) {
+						self.artData = res.info.data[0];
+			
+						const regex = new RegExp('<img', 'gi');
+						self.artData.content = self.artData.content.replace(regex, `<img style="max-width: 100%;"`);
+					} else {
+						self.$Utils.showToast(res.msg, 'none')
+					};
+					self.$Utils.finishFunc('getArtData');
+				};
+				self.$apis.articleGet(postData, callback);
+			},
+			
+			getMainData() {
+				const self = this;
+				const postData = {};
+				postData.tokenFuncName = 'getProjectToken';
+				postData.searchItem = {
+					user_no:uni.getStorageSync('user_info').user_no
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData = res.info.data[0];
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.userInfoGet(postData, callback);
+			},
+			
 			changeCurr(index){
 				const self = this;
-				self.curr = index;
+				
+				if(self.curr!=index){
+					self.curr = index;
+					if(self.curr<5){
+						self.price = parseFloat(self.specsList[self.curr]);
+					}else{
+						self.price = 0
+					}
+				};
+				
+				console.log('self.price',self.price)
 			},
+			
 			userzcShow(){
 				const self = this;
 				self.is_userzcShow = !self.is_userzcShow
 			},
-			getMainData() {
+			
+			pay() {
 				const self = this;
-				console.log('852369')
-				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				uni.setStorageSync('canClick', false);	
+				const postData = {};	
+				postData.wxPay = {
+					price:parseFloat(0.01).toFixed(2)
+				};
+				postData.tokenFuncName = 'getProjectToken',
+				postData.searchItem = {
+					id: self.orderId
+				};
+				postData.payAfter = [
+					{
+						tableName: 'FlowLog',
+						FuncName: 'add',
+						data: {
+							type:2,
+							count:self.price,
+							trade_info:'充值',
+							account:1,
+							thirdapp_id:2,
+							user_no:uni.getStorageSync('user_info').user_no
+						},
+					},
+				];
+				const callback = (res) => {
+					if (res.solely_code == 100000) {
+						if (res.info) {
+							const payCallback = (payData) => {
+								console.log('payData', payData)
+								if (payData == 1) {
+									self.$Utils.showToast('支付成功', 'none');
+									setTimeout(function() {
+										uni.navigateBack({
+											delta: 1
+										});
+									}, 1000);
+								} else {
+									uni.setStorageSync('canClick', true);
+									self.$Utils.showToast('支付失败', 'none');
+								};
+							};
+							self.$Utils.realPay(res.info, payCallback);
+						} else {						
+							self.$Utils.showToast('支付成功', 'none');
+							setTimeout(function() {
+								uni.navigateBack({
+									delta: 1
+								});
+							}, 1000);
+						};
+					} else {
+						uni.setStorageSync('canClick', true);
+						self.$Utils.showToast(res.msg, 'none');
+					};
+				};
+				self.$apis.pay(postData, callback);
+			},
+			
+			addOrder() {
+				const self = this;
+				uni.setStorageSync('canClick', false);	
+				if(self.orderId!=''){
+					self.pay();
+					return
+				};
+				if(self.curr<0){
+					self.$Utils.showToast('请选择充值金额', 'none');
+					return
+				};
+				if(self.price<=0){
+					self.$Utils.showToast('请输入充值金额', 'none');
+					return
+				};
+				const postData = {};	
+				/* postData.wxPay = {
+					price:parseFloat(self.submitData.price).toFixed(2)
+				}; */
+				postData.tokenFuncName = 'getProjectToken',
+				postData.data = {
+					price:parseFloat(0.01).toFixed(2)
+				}
+				const callback = (res) => {
+					if (res.solely_code == 100000) {
+						self.orderId = res.info.id;
+						self.pay()
+					}else{
+						self.$Utils.showToast(res.msg, 'none')
+					}
+				};
+				self.$apis.addVirtualOrder(postData, callback);
+			},
 		}
 	};
 </script>

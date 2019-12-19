@@ -3,24 +3,26 @@
 		
 		<view class="swiperContainer">
 		  <swiper @change="swiperChange" autoplay="true" interval="3000" duration="1000" >
-		      <swiper-item v-for="(item,index) in imgUrls" :key="index">
-		        <image :src="item" class="slide-image img"  />
+		      <swiper-item v-for="(item,index) in mainData.bannerImg" :key="index">
+		        <image :src="item.url" class="slide-image img"  />
 		      </swiper-item>
 		  </swiper>
-		  <view class="imageCount">{{current+1}}/{{imgUrls.length}}</view>
+		  <view class="imageCount">{{current+1}}/{{mainData.bannerImg.length}}</view>
 		</view>
 		
 		<view class="pdlr4 fixBox">
-			<view class="textBox fs13 white mgb25">汾阳王在之前应该和杏花村都属于山西名酒，清香典范，老牌子新产品。时间黑瓶包装精美，尤其是瓶子，可以说这款酒的味道是一方面，酒体由于度数原因略薄，入口柔顺，清爽，清香浓郁。</view>
+			<view class="textBox fs13 white mgb25">{{mainData.description}}</view>
 			<view class="seltDetail flexRowBetween whiteBj radius10" style="align-items: flex-start;">
 				<view class="pic">
-					<image src="../../static/images/home-img10.png" mode=""></image>
+					<image :src="mainData.product&&mainData.product[0]
+					&&mainData.product[0].mainImg&&mainData.product[0].mainImg[0]?mainData.product[0].mainImg[0].url:''" mode=""></image>
 				</view>
 				<view class="infor pr">
-					<view class="title avoidOverflow fs13">50°汾阳王青花10 500ml</view>
+					<view class="title avoidOverflow fs13">{{mainData.product&&mainData.product[0]?mainData.product[0].title:''}}</view>
 					<view class="flexRowBetween B-price">
-						<view class="price fs15">56.00</view>
-						<view class="goBtn fs12" @click="Router.redirectTo({route:{path:'/pages/prodetail/prodetail'}})">去看看</view>
+						<view class="price fs15">{{mainData.product&&mainData.product[0]?mainData.product[0].price:''}}</view>
+						<view class="goBtn fs12" :data-id="mainData.product[0].id"
+						@click="Router.redirectTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">去看看</view>
 					</view>
 				</view>
 			</view>
@@ -37,34 +39,56 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				imgUrls: [
-					'../../static/images/home-select-img3.png',
-					'../../static/images/home-select-img3.png',
-					'../../static/images/home-select-img3.png'
-				],
-				current: 0
+				
+				current: 0,
+				mainData:{}
 			}
 		},
-		 swiperChange(e) {
-		    const self = this;
-		    if (e.detail.source == 'touch') {
-		      self.setData({
-		        current: e.detail.current
-		      })
-		    }
-		 },
+		 
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.id = options.id;
+			if(options.index){
+				self.current =parseInt(options.index)
+			};
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
 		methods: {
+			
+			swiperChange(e) {
+			   const self = this;
+			   console.log('e',e)
+			   self.current = e.detail.current
+			},
+			
 			getMainData() {
 				const self = this;
-				console.log('852369')
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					thirdapp_id: 2,
+					id:self.id
+				};
+				postData.getAfter = {
+					product:{
+						tableName:'Product',
+						middleKey:'url',
+						key:'id',
+						searchItem:{
+							status:1
+						},
+						condition:'='
+					}
+				}
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData = res.info.data[0];
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.articleGet(postData, callback);
+			},
 		}
 	};
 </script>

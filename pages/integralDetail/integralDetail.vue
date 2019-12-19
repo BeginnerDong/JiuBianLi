@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="xqImg">
-			<image class="w" src="../../static/images/integral-img1.png" mode="widthFix"></image>
+			<image class="w" :src="mainData.bannerImg&&mainData.bannerImg[0]?mainData.bannerImg[0].url:''" mode="widthFix"></image>
 		</view>
 	</view>
 </template>
@@ -13,22 +13,38 @@
 				Router:this.$Router,
 				showView: false,
 				wx_info:{},
-				is_show:false
+				is_show:false,
+				mainData:{}
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.id = options.id;
+			self.$Utils.loadAll(['getMainData'], self);
 		},
 		methods: {
+			
 			getMainData() {
 				const self = this;
-				console.log('852369')
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					thirdapp_id: 2,
+					id: self.id
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData = res.info.data[0];
+						const regex = new RegExp('<img', 'gi');
+						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;"`);
+					} else {
+						self.$Utils.showToast('没有更多了', 'none');
+					};
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.productGet(postData, callback);
+			},
 		}
 	};
 </script>

@@ -103,7 +103,8 @@
 			"path": "pages/nearbyStore/nearbyStore",
 			"style": {
 				"navigationBarTitleText": "附近门店",
-				"onReachBottomDistance":100
+				"onReachBottomDistance":100,
+				"enablePullDownRefresh": true
 			}
 		},
 		{

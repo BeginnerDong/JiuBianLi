@@ -2,11 +2,11 @@
 	<view>
 		
 		<view class="mglr4 pdtb15">
-			<textarea value="" placeholder="请输入您对酒便利的建议"  placeholder-class="placeholder"/>
+			<textarea v-model="submitData.content" placeholder="请输入您对酒便利的建议"  placeholder-class="placeholder"/>
 		</view>
 		
 		<view class="submitbtn" style="margin-top: 140rpx;">
-			<button class="btn" type="button">确定</button>
+			<button class="btn" type="button" @click="Utils.stopMultiClick(submit)">确定</button>
 		</view>
 		
 	</view>
@@ -17,25 +17,65 @@
 		data() {
 			return {
 				Router:this.$Router,
-				showView: false,
-				wx_info:{},
-				is_show:false
+				Utils:this.$Utils,
+				submitData:{
+					
+					content:'',
+					type:2
+				},
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			uni.setStorageSync('canClick', true);
 		},
+		
 		methods: {
-			getMainData() {
+			
+			
+			
+				
+			submit() {
 				const self = this;
-				console.log('852369')
+				uni.setStorageSync('canClick', false);	
+				var newObject = self.$Utils.cloneForm(self.submitData);
+				delete newObject.content;
+				const pass = self.$Utils.checkComplete(newObject);
+				if (pass) {								
+						self.messageAdd();
+				} else {
+					uni.setStorageSync('canClick', true);
+					self.$Utils.showToast('请输入您的建议', 'none')
+					console.log(self.submitData)
+				};
+			},
+			
+			
+			messageAdd() {
+				const self = this;
 				const postData = {};
 				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
-		}
+				postData.data = {};
+				postData.data = self.$Utils.cloneForm(self.submitData);
+				console.log('postData',postData)			
+				const callback = (data) => {				
+					if (data.solely_code == 100000) {					
+						self.$Utils.showToast('反馈成功', 'none');
+						setTimeout(function() {
+							uni.navigateBack({
+								delta:1
+							})
+						}, 800)
+					} else {
+						uni.setStorageSync('canClick', true);
+						self.$Utils.showToast(data.msg, 'none', 1000)
+					}	
+				};
+				self.$apis.messageAdd(postData, callback);
+			},
+			
+		},
 	};
 </script>
 

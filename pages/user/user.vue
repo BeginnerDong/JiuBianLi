@@ -2,11 +2,12 @@
 	<view>
 		
 		<view class="userHead pdlr4 white">
-			<view class="loginBtn flexCenter pdtb20" v-show="is_show" >
-				<view class="flexCenter">登录<view class="xian fs16" @click="Router.navigateTo({route:{path:'/pages/login/login'}})"></view>注册</view>
+			<view class="loginBtn flexCenter pdtb20" @click="Router.navigateTo({route:{path:'/pages/login/login'}})" v-if="!isLogin" >
+				<view class="flexCenter">登录<view class="xian fs16" 
+				></view>注册</view>
 			</view>
 			
-			<view class="flex userPhoto pdtb20"  v-show="!is_show">
+			<view class="flex userPhoto pdtb20"  v-if="isLogin">
 				<view class="flex" @click="Router.navigateTo({route:{path:'/pages/user-infor/user-infor'}})">
 					<view class="pic mgr10"><image src="../../static/images/about-img.png" mode=""></image></view>
 					<view class="">
@@ -17,13 +18,22 @@
 			</view>
 			
 			<view class="mydata flex fs13 flexRowBetween pdlr4">
-				<view class="item flex flexCenter" @click="Router.navigateTo({route:{path:'/pages/user-myHongbao/user-myHongbao'}})">红包<view class="num">2</view></view>
-				<view class="item flex flexCenter" @click="Router.navigateTo({route:{path:'/pages/hongbao_myCoupon/hongbao_myCoupon'}})">优惠券<view class="num">2</view></view>
-				<view class="item flex flexCenter">积分<view class="num">2</view></view>
+				<view class="item flex flexCenter" 
+				@click="Router.navigateTo({route:{path:'/pages/user-myHongbao/user-myHongbao'}})">红包
+					<view class="num">{{isLogin&&mainData.bonus?mainData.bonus:'***'}}</view>
+				</view>
+				<view class="item flex flexCenter" 
+				@click="Router.navigateTo({route:{path:'/pages/hongbao_myCoupon/hongbao_myCoupon'}})">
+				优惠券<view class="num">{{isLogin&&mainData.coupon?mainData.coupon.length:'***'}}</view>
+				</view>
+				<view class="item flex flexCenter">积分<view class="num">{{isLogin&&mainData.bonus?mainData.score:'***'}}</view></view>
 			</view>
 			<view class="mglr4 pdtb25 flex">
-				<view>余额 <text class="ftw mgl10 mgr20">0.00</text></view>
-				<view style="text-decoration: underline" @click="Router.navigateTo({route:{path:'/pages/user-recharge/user-recharge'}})">充值&gt;</view>
+				<view>余额 <text class="ftw mgl10 mgr20">{{isLogin&&mainData.bonus?mainData.balance:'***'}}</text></view>
+				<view style="text-decoration: underline" 
+				@click="Router.navigateTo({route:{path:'/pages/user-recharge/user-recharge'}})">
+				充值&gt;
+				</view>
 			</view>
 			
 			<view class="flexRowBetween whiteBj orderBtn radius10">
@@ -69,9 +79,9 @@
 					<image src="../../static/images/about-icon7.png"></image>
 					<view class="tit">会员权益</view>
 				</view>
-				<view class="item" @click="Router.navigateTo({route:{path:'/pages//'}})">
+				<view class="item" @click="callPhone">
 					<image src="../../static/images/about-icon8.png"></image>
-					<view class="tit">95197</view>
+					<view class="tit">客服电话</view>
 				</view>
 			</view>
 		</view>
@@ -80,15 +90,16 @@
 			<view class="titbj flexCenter fs15" style="color: #c9850f">为您推荐</view>
 			<!-- 为您推荐 -->
 			<view class="proList flex">
-				<view class="item" v-for="(item,index) in proList" :key="index" @click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
+				<view class="item" v-for="(item,index) in productData" :key="index" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="pic">
-						<image src="../../static/images/home-img10.png" mode=""></image>
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flexRowBetween">
-							<view class="price">56.00</view>
-							<view class="yuanJia">56.00</view>
+							<view class="price">{{item.price}}</view>
+							<view class="yuanJia">{{item.o_price}}</view>
 						</view>
 					</view>
 				</view>
@@ -134,24 +145,109 @@
 				Router:this.$Router,
 				showView: false,
 				wx_info:{},
-				is_show:false,
-				proList:[{},{},{},{}]
+				is_show:true,
+				proList:[{},{},{},{}],
+				isLogin:false,
+				mainData:{},
+				productData:[]
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getLabelData','getProductData'], self);
 		},
+		
+		onShow() {
+			const self = this;
+			if(uni.getStorageSync('user_token')){
+				self.isLogin = true
+				self.$Utils.loadAll(['getMainData'], self);
+			}
+		},
+		
 		methods: {
+			
 			getMainData() {
 				const self = this;
-				console.log('852369')
 				const postData = {};
 				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					user_no:uni.getStorageSync('user_info').user_no
+				};
+				postData.getAfter = {
+					coupon:{
+						tableName:'UserCoupon',
+						middleKey:'user_no',
+						key:'user_no',
+						searchItem:{
+							status:1
+						},
+						condition:'='
+					}
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData = res.info.data[0];
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.userInfoGet(postData, callback);
+			},
+			
+			getLabelData() {
+				const self = this;
+				const postData = {};
+				
+				postData.searchItem = {
+					thirdapp_id:2,
+					title:'客服电话'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.labelData = res.info.data[0];
+					}
+					console.log('self.labelData', self.labelData)
+					self.$Utils.finishFunc('getLabelData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			callPhone(phone){
+				const self = this;
+				uni.makePhoneCall({
+				    phoneNumber: self.labelData.description
+				});
+			},
+			
+			getProductData() {
+				const self = this;
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					type:1
+				};
+				postData.paginate = {
+					count: 0,
+					currentPage: 1,
+					is_page: true,
+					pagesize: 4
+				};
+				postData.order = {
+					listorder:'desc'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.productData.push.apply(self.productData, res.info.data)
+					}
+					console.log('self.productData', self.productData)
+					self.$Utils.finishFunc('getProductData');
+				};
+				self.$apis.productGet(postData, callback);
+			},
 		}
+		
 	};
 </script>
 

@@ -11,18 +11,18 @@
 			<!-- banner -->
 			<view class="banner-box">
 				<swiper class="swiper-box flex" indicator-dots="true" autoplay="true" interval="3000" duration="1000"  indicator-active-color="#FF2121">
-					<block v-for="(item,index) in labelData" :key="index">
+					<block v-for="(item,index) in mainData.bannerImg" :key="index">
 						<swiper-item class="swiper-item">
-							<image :src="item" class="slide-image"/>
+							<image :src="item.url" class="slide-image"/>
 						</swiper-item>
 					</block>
 				</swiper>
 			</view>
 			<view class="pdlr4 mgt10 mgb10">
-				<view class="mgb5">50°汾阳青花10 500ml</view>
+				<view class="mgb5">{{mainData.title}}</view>
 				<view class="flex">
-					<view class="price">98.00</view>
-					<view class="yuanJia mgl15">98.00</view>
+					<view class="price">{{mainData.price}}</view>
+					<view class="yuanJia mgl15">{{mainData.o_price}}</view>
 				</view>
 			</view>
 			<view class="f5H5"></view>
@@ -174,7 +174,8 @@
 		
 		<!-- 详情 -->
 		<view class="pdt5" v-show="curr==3">
-			<image class="w" src="../../static/images/img4.png" mode="widthFix"></image>
+			<view class="content ql-editor" style="padding:0;line-height: 0;" v-html="mainData.content">
+			</view>
 		</view>
 		
 		<view class="black-bj" v-show="is_show"></view>
@@ -206,35 +207,35 @@
 			<view class="editLine fs13">
 				<view class="item pdtb10 borderB1 flex">
 					<view class="ll color6">品牌</view>
-					<view class="rr">汾阳王</view>
+					<view class="rr">{{mainData.brand}}</view>
 				</view>
 				<view class="item pdtb10 borderB1 flex">
 					<view class="ll color6">产地产区</view>
-					<view class="rr">山西吕梁</view>
+					<view class="rr">{{mainData.origin}}</view>
 				</view>
 				<view class="item pdtb10 borderB1 flex">
 					<view class="ll color6">规格</view>
-					<view class="rr">500ml*6</view>
+					<view class="rr">{{mainData.specifications}}</view>
 				</view>
 				<view class="item pdtb10 borderB1 flex">
 					<view class="ll color6">酒精度</view>
-					<view class="rr">50°</view>
+					<view class="rr">{{mainData.alcohol}}</view>
 				</view>
 				<view class="item pdtb10 borderB1 flex">
 					<view class="ll color6">净含量</view>
-					<view class="rr">500ml</view>
+					<view class="rr">{{mainData.net_content}}</view>
 				</view>
 				<view class="item pdtb10 borderB1 flex">
 					<view class="ll color6">香型</view>
-					<view class="rr">清香型</view>
+					<view class="rr">{{mainData.aroma}}</view>
 				</view>
 				<view class="item pdtb10 borderB1 flex">
 					<view class="ll color6">执行标准</view>
-					<view class="rr">GB/T 10781.2-2006(优级)</view>
+					<view class="rr">{{mainData.standard}}</view>
 				</view>
 				<view class="item pdtb10 borderB1 flex">
 					<view class="ll color6">储存条件</view>
-					<view class="rr">常温保存</view>
+					<view class="rr">{{mainData.storage}}</view>
 				</view>
 			</view>
 		</view>
@@ -309,13 +310,15 @@
 				is_couponShow:false,
 				is_specsShow:false,
 				count:1,
-				is_carNumShow:false
+				is_carNumShow:false,
+				mainData:{}
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.id = options.id;
+			self.$Utils.loadAll(['getMainData'], self);
 		},
 		methods: {
 			changeCurr(curr){
@@ -349,13 +352,27 @@
 				const self = this;
 				self.is_carNumShow =!self.is_carNumShow;
 			},
+			
 			getMainData() {
 				const self = this;
-				console.log('852369')
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					thirdapp_id: 2,
+					id: self.id
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData = res.info.data[0];
+						const regex = new RegExp('<img', 'gi');
+						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;"`);
+					} else {
+						self.$Utils.showToast('没有更多了', 'none');
+					};
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.productGet(postData, callback);
+			},
 		}
 	};
 </script>

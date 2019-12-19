@@ -1,45 +1,44 @@
 import assetsConfig from "@/config/assets.config.js";
-
+var QQMapWX = require('@/common/qqmap-wx-jssdk.min.js');
+var wxMap = new QQMapWX({
+	key: '4BEBZ-ZM43U-U6SVY-BZ5X3-44T35-4ZFD6' // 必填
+});
+import token from '@/common/token.js';
 export default {
 	
 	
 
 	realPay(param, callback) {
-	
-		function onBridgeReady(param) {
-			WeixinJSBridge.invoke(
-				'getBrandWCPayRequest', {
-					"appId": "wx7db54ed176405e24", //公众号名称，由商户传入     
-					'timeStamp': param.timeStamp,
-					'nonceStr': param.nonceStr,
-					'package': param.package,
-					'signType': param.signType,
-					'paySign': param.paySign,
-				},
-				function(res) {
-	
-					if (res.err_msg == "get_brand_wcpay_request:ok") {
-						// 使用以上方式判断前端返回,微信团队郑重提示：
-						//res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
-						callback && callback(1);
-					} else {
-/* 						alert(JSON.stringify(res));
-						alert(res.err_msg); */
-						callback && callback(0);
-					}
+		
+		uni.requestPayment({
+			provider: 'wxpay',
+			'timeStamp': param.timeStamp,
+			'nonceStr': param.nonceStr,
+			'package': param.package,
+			'signType': param.signType,
+			'paySign': param.paySign,
+			success: function(res) {
+				console.log(res);
+				wx.showToast({
+					title: '支付成功',
+					icon: 'none',
+					duration: 1000,
+					mask: true
 				});
-		}
-		if (typeof WeixinJSBridge == "undefined") {
-			if (document.addEventListener) {
-				document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-			} else if (document.attachEvent) {
-				document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
-				document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
-			}
-		} else {
-			onBridgeReady(param);
-		}
 	
+				callback && callback(1);
+			},
+			fail: function(res) {
+				console.log(res);
+				wx.showToast({
+					title: '支付失败',
+					icon: 'none',
+					duration: 1000,
+					mask: true
+				});
+				callback && callback(0);
+			}
+		});
 	},
 	
 	getHashParameters() {
@@ -695,6 +694,110 @@ export default {
 			var currentdate = date.getHours() + seperator2 + date.getMinutes() + seperator2 + date.getSeconds();
 		}
 		return currentdate;
-	}
+	},
+	
+	distance(la1, lo1, la2, lo2) {
+		var La1 = la1 * Math.PI / 180.0;
+		var La2 = la2 * Math.PI / 180.0;
+		var La3 = La1 - La2;
+		var Lb3 = lo1 * Math.PI / 180.0 - lo2 * Math.PI / 180.0;
+		var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(La3 / 2), 2) + Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(
+			Lb3 / 2), 2)));
+		s = s * 6378.137;
+		s = Math.round(s * 10000) / 10000;
+		s = s.toFixed(2);
+		return s;
+	},
+	
+	getLocation(type, callback) {
+		wx.getSetting({
+			success: (res) => {
+				if (res.authSetting['scope.userLocation'] != undefined && res.authSetting['scope.userLocation'] != true) { //非初始化进入该页面,且未授权
+					callback&&callback(res)
+				} else if (res.authSetting['scope.userLocation'] == undefined) { //初始化进入
+					wx.getLocation({
+					  type: 'gcj02',
+					  success: function (res) {
+					    var latitude = res.latitude
+					    var longitude = res.longitude
+					    
+					    if(type=='getGeocoder'){
+					        callback&&callback(res)
+					        return;
+					    };
+					    if(type=='reverseGeocoder'){
+					        wxMap.reverseGeocoder({
+					          location: {
+					            latitude: latitude,
+					            longitude: longitude
+					          },
+					          success: function (res) {
+					            callback&&callback(res.result)
+					          },
+					          fail(res){
+					            wx.showToast({
+					                title:'获取位置失败',
+					                icon:'none',
+					                duration:2000,
+					                mask:true,
+					            });
+					          }
+					        });  
+					    }
+					  },
+					  fail(res) {
+					    wx.showToast({
+					        title:'获取经纬度失败',
+					        icon:'none',
+					        duration:2000,
+					        mask:true,
+					    }); 
+					  }
+					})
+				} else { //授权后默认加载
+					wx.getLocation({
+					  type: 'gcj02',
+					  success: function (res) {
+					    var latitude = res.latitude
+					    var longitude = res.longitude
+						/* var latitude = 33.0678400000
+						var longitude = 107.0319400000 */
+					    if(type=='getGeocoder'){
+					        callback&&callback(res)
+					        return;
+					    };
+					    if(type=='reverseGeocoder'){
+					        wxMap.reverseGeocoder({
+					          location: {
+					            latitude: latitude,
+					            longitude: longitude
+					          },
+					          success: function (res) {
+					            callback&&callback(res.result)
+					          },
+					          fail(res){
+					            wx.showToast({
+					                title:'获取位置失败',
+					                icon:'none',
+					                duration:2000,
+					                mask:true,
+					            });
+					          }
+					        });  
+					    }
+					  },
+					  fail(res) {
+					    wx.showToast({
+					        title:'获取经纬度失败',
+					        icon:'none',
+					        duration:2000,
+					        mask:true,
+					    }); 
+					  }
+					})
+				}
+			}
+		})
+	},
 
 }

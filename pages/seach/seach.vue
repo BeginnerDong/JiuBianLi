@@ -5,38 +5,33 @@
 			<view class="flex rr" style="width: 85%;">
 				<button class="seachBtn" type="button"></button>
 				<view class="input">
-					<input type="text" name="" value="" placeholder="乌苏 西风 洋河" placeholder-class="placeholder" />
+					<input v-model="submitData.keywords" 
+					type="text" name="" value="" placeholder="乌苏 西风 洋河" 
+					placeholder-class="placeholder" />
 				</view>
-				<view class="delt flex"><text>×</text></view>
+				<view class="delt flex" v-if="submitData.keywords!=''" @click="deleteText"><text>×</text></view>
 			</view>
-			<view class="Rseach pubColor fs15" @click="Router.navigateTo({route:{path:'/pages/seach-product/seach-product'}})">搜索</view>
+			<view class="Rseach pubColor fs15" 
+			@click="search">搜索</view>
 		</view>
 		<view class="pdlr4 borderB1">
 			<view class="fs15 pdt20 pdb15 ftw">热门搜索</view>
 			<view class="hotLabel center fs13 flex ">
-				<view class="item" v-for="(item,index) in hotLabel" :key="index">{{item}}</view>
+				<view class="item" v-for="(item,index) in hotLabel" @click="clickSearch(item)" :key="index">{{item}}</view>
 			</view>
 			
 			<view class="fs15 pdt10 pdb15 ftw">历史记录</view>
 			<view class="historyDate  center fs13 flex">
-				<view class="item" v-for="(item,index) in historyDate" :key="index">{{item}}</view>
+				<view class="item" v-for="(item,index) in historyData" @click="clickSearch(item)" :key="index">{{item}}</view>
 			</view>
 		</view>
 		
-		<view class="fx-deltBtn flexCenter color6" @click="popupShow">
+		<view class="fx-deltBtn flexCenter color6" v-if="historyData.length>0" @click="deleteHistory()">
 			<image class="icon" src="../../static/images/search-icon1.png" mode=""></image>
 			<text>清除搜索记录</text>
 		</view>
 		
-		<view class="black-bj" v-show="is_show"></view>
-		<view class="popupShow center whiteBj radius10 pdt20" v-show="is_popupShow">
-			<view class="tip-title mgb10 fs15">提示</view>
-			<view class="fs13 color6 pdb20 borderB1">确定清空搜索记录吗？</view>
-			<view class="flex tip-button">
-				<view class="item"  @click="popupShow">取消</view>
-				<view class="item pubColor">确定</view>
-			</view>
-		</view>
+		
 		
 	</view>
 </template>
@@ -46,32 +41,78 @@
 		data() {
 			return {
 				Router:this.$Router,
-				showView: false,
-				wx_info:{},
-				is_show:false,
+				
 				hotLabel:['乌苏','西风','洋河','泸州','五粮液','国窖','茅台','汾酒','奔富','福佳白','青岛','百威','凯撒'],
-				historyDate:['茅台','汾酒','青岛','百威','凯撒'],
-				is_popupShow:false
+				historyData:[],
+				
+				submitData:{
+					keywords:''
+				}
 			}
 		},
 		
-		onLoad(options) {
+		onShow() {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			console.log('self.historyData',self.historyData)
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
 		methods: {
-			popupShow(){
-				const self=this;
-				self.is_popupShow = !self.is_popupShow;
-				self.is_show = !self.is_show;
-				
+			
+			clickSearch(item){
+				const self = this;
+				self.submitData.keywords = item;
+				self.search()
 			},
+			
+			deleteText(){
+				const self = this;
+				self.submitData.keywords = ''
+			},
+			
+			deleteHistory(){
+				const self = this;
+				uni.showModal({
+				    title: '提示',
+				    content: '确定要删除历史搜索记录吗',
+					showCancel:true,
+				    success: function (res) {
+				        if (res.confirm) {
+				             self.historyData = [];
+							 uni.removeStorageSync('historyData')
+				        } else if (res.cancel) {
+				            console.log('用户点击取消');
+				        }
+				    }
+				});	
+			},
+			
+			search(){
+				const self = this;
+				if(self.submitData.keywords!=''){
+					self.Router.navigateTo({route:{path:'/pages/seach-product/seach-product?keywords='+self.submitData.keywords}})
+				}else{
+					self.$Utils.showToast('请输入关键词搜索', 'none');
+				}
+				console.log('self.historyData',self.historyData)
+				var position = self.historyData.indexOf(self.submitData.keywords);
+				if(position>=0){
+
+				}else{
+					console.log('self.historyData',self.historyData)
+				  self.historyData.push(self.submitData.keywords);
+				};	
+				uni.setStorageSync('historyData',self.historyData);
+				self.submitData.keywords = '';
+			},
+			
 			getMainData() {
 				const self = this;
-				console.log('852369')
-				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
+				console.log('852369');
+				if(uni.getStorageSync('historyData')){
+					self.historyData = uni.getStorageSync('historyData');
+				};
+				self.$Utils.finishFunc('getMainData');
 			}
 		}
 	};

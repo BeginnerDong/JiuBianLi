@@ -2,29 +2,16 @@
 	<view>
 		
 		<view class="rechgeMx">
-			<view class="item flexRowBetween">
+			<view class="item flexRowBetween" v-for="item in mainData">
 				<view class="tt">
 					<view>充值</view>
-					<view class="fs12 color6">2019.12.5</view>
+					<view class="fs12 color6">{{item.create_time}}</view>
 				</view>
-				<view class="tt price flexCenter">100</view>
-				<view class="tt flexEnd"><view class="btn" @click="Router.navigateTo({route:{path:'/pages/orderConfirm-invoice/orderConfirm-invoice'}})">开电子发票</view></view>
-			</view>
-			<view class="item flexRowBetween">
-				<view class="tt">
-					<view>充值</view>
-					<view class="fs12 color6">2019.12.5</view>
-				</view>
-				<view class="tt price flexCenter">100</view>
-				<view class="tt flexEnd"><view class="btn" @click="Router.navigateTo({route:{path:'/pages/orderConfirm-invoice/orderConfirm-invoice'}})">开电子发票</view></view>
-			</view>
-			<view class="item flexRowBetween">
-				<view class="tt">
-					<view>充值</view>
-					<view class="fs12 color6">2019.12.5</view>
-				</view>
-				<view class="tt price flexCenter">100</view>
-				<view class="tt flexEnd"><view class="btn finish">发票已开</view></view>
+				<view class="tt price flexCenter">{{item.price}}</view>
+				<view class="tt flexEnd" v-if="item.receipt_status==0"><view class="btn" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/orderConfirm-invoice/orderConfirm-invoice?id='+$event.currentTarget.dataset.id}})">
+				开电子发票</view></view>
+				<view class="tt flexEnd" v-else><view class="btn finish">发票已开</view></view>
 			</view>
 		</view>
 		
@@ -36,25 +23,80 @@
 		data() {
 			return {
 				Router:this.$Router,
-				showView: false,
-				wx_info:{},
-				is_show:false
+				rewardData:[
+					{},{},{}
+				],
+				searchItem:{
+					type:6,
+					pay_status:1,
+					
+				},
+				userInfoData:{},
+				mainData:[],
+				paginate:{
+					count: 0,
+					currentPage: 1,
+					pagesize: 10,
+					is_page: true,
+				},
+				current:1
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.paginate);
+			//self.$Utils.loadAll(['getMainData'], self)
+		
 		},
+			
+		onShow() {
+			const self =  this;
+			self.getMainData(true);
+		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
 		methods: {
-			getMainData() {
+			
+		
+			
+			
+			getMainData(isNew) {
 				const self = this;
-				console.log('852369')
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						pagesize: 10,
+						is_page: true,
+					};
+				};
 				const postData = {};
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = self.$Utils.cloneForm(self.searchItem);
 				postData.tokenFuncName = 'getProjectToken';
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+						for (var i = 0; i < self.mainData.length; i++) {
+							self.mainData[i].create_time = self.mainData[i].create_time.substr(0,10)
+						}
+					}
+					console.log(self.mainData)
+				};
 				self.$apis.orderGet(postData, callback);
-			}
-		}
+			},
+
+		},
 	};
 </script>
 

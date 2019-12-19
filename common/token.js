@@ -18,15 +18,15 @@ class Token {
         };
     }
 
-	getProjectToken(callback,postData) { 
+	getWxToken(callback,postData) { 
 		
 		var pass = true;
 		if(postData&&postData.refreshToken){
-			uni.removeStorageSync('user_token');
+			uni.removeStorageSync('wx_token');
 			uni.removeStorageSync('token_expire_time');
 			pass = false;
 		};
-		if(!uni.getStorageSync('user_token')){
+		if(!uni.getStorageSync('wx_token')){
 			pass = false;
 		};
 		if(!uni.getStorageSync('token_expire_time')){
@@ -40,17 +40,17 @@ class Token {
 	        var params = {
 	            thirdapp_id:2,
 				refreshToken:true,
-				info_name:'user_info',
-				token_name:'user_token'
+				info_name:'wx_info',
+				token_name:'wx_token'
 	        };
-			console.log('getProjectToken',callback)
+			console.log('getWxToken',callback)
 			if(callback){
 				this.getUserInfo(params,callback);
 			}else{
 				this.getUserInfo(params);
 			};    
 	    }else{
-	        return uni.getStorageSync('user_token');
+	        return uni.getStorageSync('wx_token');
 	    }
 	}
 	
@@ -265,15 +265,15 @@ class Token {
         
     }
     
-    getMerchantToken(callback,postData) { 
-        if((postData&&postData.refreshToken)||!uni.getStorageSync('merchant_token')){
-            uni.removeStorageSync('merchant_token');
-            uni.removeStorageSync('merchant_info');
+    getProjectToken(callback,postData) { 
+        if((postData&&postData.refreshToken)||!uni.getStorageSync('user_token')){
+            uni.removeStorageSync('user_token');
+            uni.removeStorageSync('user_info');
             uni.redirectTo({
-              url: '/pages/login/login'
+              url: '/pages/user/user'
             });
         }else{
-            return uni.getStorageSync('merchant_token');
+            return uni.getStorageSync('user_token');
         }
     }
    
@@ -330,7 +330,7 @@ class Token {
 		uni.setStorageSync('token_get_time',time);
         uni.login({
             success: function (res) {
-                console.log(res)
+                /* console.log(res)
                 var postData = {};
                 postData.thirdapp_id = params.thirdapp_id;  
                 
@@ -378,7 +378,7 @@ class Token {
                         
                         
                     }
-                })
+                }) */
                 
             }
         })

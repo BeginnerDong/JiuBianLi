@@ -5,21 +5,21 @@
 			<view class="flex rr" style="width: 85%;">
 				<button class="seachBtn" type="button"></button>
 				<view class="input" style="width: 85%;">
-					<input type="text" name="" value="" placeholder="搜索地址/街道/地址" placeholder-class="placeholder" />
+					<input type="text" name="" v-model="address" placeholder="搜索地址/街道" placeholder-class="placeholder" />
 				</view>
 			</view>
-			<view class="Rseach pubColor fs15">搜索</view>
+			<view class="Rseach pubColor fs15" @click="search">搜索</view>
 		</view>
 		
 		<view class="storeList pdlr4">
-			<view class="item flexRowBetween" v-for="(item,index) in storeList" :key="index">
-				<view class="photo"><image src="../../static/images/stoers-img.png" mode=""></image></view>
+			<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index">
+				<view class="photo"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
 				<view class="infor">
 					<view class="flexRowBetween">
-						<view class="title avoidOverflow">陕西莱安壹江店</view>
-						<view class="fs12 color6">1.1km</view>
+						<view class="title avoidOverflow">{{item.name}}</view>
+						<view class="fs12 color6">{{item.distance}}km</view>
 					</view>
-					<view class="adrs fs12 color6">南二环与唐延路东南角华润万家入口</view>
+					<view class="adrs fs12 color6">{{item.address}}</view>
 				</view>
 			</view>
 			
@@ -35,22 +35,109 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				storeList:[{},{},{},{}]
+				storeList:[{},{},{},{}],
+				mainData:[],
+				searchItem:{
+					thirdapp_id: 2,
+					user_type:1
+				},
+				address:''
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getLocation'], self);
 		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
+		onPullDownRefresh() {
+			console.log('refresh');
+			const self = this;
+			self.address = '';
+			if(self.searchItem.address!=''){
+				delete self.searchItem.address;
+				
+			};
+			self.getMainData(true)
+			
+		},
+		
 		methods: {
-			getMainData() {
+			
+			getLocation() {
 				const self = this;
-				console.log('852369')
+				const callback = (res) => {
+					if (res) {
+						console.log('res', res)
+						if (res.authSetting) {
+							console.log(232)
+							return
+						}
+						self.lng = res.location.lng;
+						self.lat = res.location.lat
+						self.getMainData(true)
+					};
+				};
+				self.$Utils.getLocation('reverseGeocoder', callback);
+			},
+			
+			search(){
+				const self = this;
+				if(self.address!=''){
+					self.searchItem.address = ['LIKE',['%'+self.address+'%']]
+					self.getMainData(true)
+				}else{
+					self.$Utils.showToast('请输入地址搜索','none')
+				}
+			},
+			
+			getMainData(isNew) {
+				const self = this;
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 5
+					}
+				};
 				const postData = {};
 				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = self.$Utils.cloneForm(self.searchItem)
+				postData.order = {
+					distance:'asc',
+					longitude:self.lng,
+					latitude:self.lat,
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+						for (var i = 0; i < self.mainData.length; i++) {
+							self.mainData[i].distance =
+								self.$Utils.distance(self.lat, self.lng, self.mainData[i].latitude, self.mainData[i].longitude)
+							
+						}
+					};
+					setTimeout(function () {
+						uni.stopPullDownRefresh();
+					}, 1000);
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getLocation');
+				};
+				self.$apis.userInfoGet(postData, callback);
+			},
 		}
 	};
 </script>

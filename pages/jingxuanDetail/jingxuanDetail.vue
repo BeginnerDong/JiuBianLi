@@ -2,10 +2,11 @@
 	<view>
 		
 		<view class="imbox">
-			<image class="w" src="../../static/images/img3.png" mode="widthFix"></image>
+			<image class="w" style="heigth" :src="mainData.bannerImg&&mainData.bannerImg[0]?mainData.bannerImg[0].url:''" mode="widthFix"></image>
 		</view>
 		<view class="flexCenter">
-			<view class="q-btn center" @click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">立即抢购</view>
+			<view class="q-btn center" 
+			@click="Router.navigateTo({route:{path:mainData.url}})">立即抢购</view>
 		</view>
 		
 	</view>
@@ -16,23 +17,34 @@
 		data() {
 			return {
 				Router:this.$Router,
-				showView: false,
-				wx_info:{}
+				mainData:{}
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.id = options.id;
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
+		
 		methods: {
 			getMainData() {
 				const self = this;
-				console.log('852369')
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					thirdapp_id: 2,
+					id: self.id
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData = res.info.data[0]
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
 		}
 	};
 </script>

@@ -237,6 +237,18 @@ export default {
 		http.HTTP(allParams);
 	},
 	
+	register(param, callback) {
+		var allParams = {
+			url: 'Project/Solely/register',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
 
 	productGet(param, callback) {
 		if(!param.hasContent){
@@ -307,7 +319,7 @@ export default {
 	login(param, callback) {
 
 		var allParams = {
-			url: 'Func/Common/loginByUp',
+			url: 'Project/Solely/login',
 			type: 'post',
 			data: param,
 			sCallback: function(data) {
@@ -341,6 +353,20 @@ export default {
 		};
 		http.HTTP(allParams);
 	},
+	
+	bindWechat(param, callback) {
+		var allParams = {
+			url: '/Base/ProgramToken/bindWechat',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	
 
 	skuGet(param, callback) {
 		var allParams = {
@@ -389,6 +415,30 @@ export default {
 		};
 		http.HTTP(allParams);
 	},
+	
+	couponAdd(param, callback) {
+		var allParams = {
+			url: 'Func/Coupon/addCoupon',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	messageAdd(param, callback) {
+		var allParams = {
+			url: 'Common/Message/add',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
 
 	addressAdd(param, callback) {
 		var allParams = {
@@ -405,6 +455,18 @@ export default {
 	userCouponGet(param, callback) {
 		var allParams = {
 			url: 'Common/UserCoupon/get',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	couponGet(param, callback) {
+		var allParams = {
+			url: 'Common/Coupon/get',
 			type: 'post',
 			data: param,
 			sCallback: function(data) {

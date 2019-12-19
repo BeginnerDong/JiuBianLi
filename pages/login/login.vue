@@ -13,7 +13,7 @@
 						<image class="icon" src="../../static/images/the-login-icon2.png" mode=""></image>
 					</view>
 					<view class="rr">
-						<input type="text" value="" placeholder="输入手机号码" placeholder-class="placeholder" />
+						<input type="number" v-model="submitData.login_name" placeholder="输入手机号码" placeholder-class="placeholder" />
 					</view>
 				</view>
 				<view class="item flex">
@@ -30,7 +30,7 @@
 			</view>
 			
 			<view class="submitbtn">
-				<button class="btn" type="button" @click="Router.navigateTo({route:{path:'/pages/user/user'}})">登录</button>
+				<button class="btn" type="button" @click="submit">登录</button>
 			</view>
 		</view>
 		
@@ -41,7 +41,7 @@
 						<image class="icon" src="../../static/images/the-login-icon2.png" mode=""></image>
 					</view>
 					<view class="rr">
-						<input type="text" value="" placeholder="输入手机号码" placeholder-class="placeholder" />
+						<input type="number" v-model="registerData.phone" placeholder="输入手机号码" placeholder-class="placeholder" />
 					</view>
 				</view>
 				<view class="item flex">
@@ -58,7 +58,7 @@
 			</view>
 			
 			<view class="submitbtn">
-				<button class="btn" type="button" @click="changeCurr('1')">注册</button>
+				<button class="btn" type="button" @click="register">注册</button>
 			</view>
 		</view>
 	</view>
@@ -72,7 +72,13 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				curr:1
+				curr:1,
+				registerData:{
+					phone:''
+				},
+				submitData:{
+					login_name:''
+				}
 			}
 		},
 		
@@ -87,6 +93,80 @@
 					self.curr = curr
 				}
 			},
+			
+			submit() {
+				const self = this;
+			
+				const postData = {
+					login_name: self.submitData.login_name,
+					
+				};
+				if (self.$Utils.checkComplete(self.submitData)) {
+					
+					const callback = (res) => {
+						if (res.solely_code == 100000) {
+							console.log(res);
+							
+							uni.login({
+								success(data) {
+									const c_postData = {
+										code: data.code,
+										token:res.token
+									};
+									const c_callback = (c_res) => {
+										if (c_res.solely_code == 100000) {
+											uni.setStorageSync('user_token', res.token);
+											uni.setStorageSync('user_info', res.info);
+											uni.navigateBack({
+												delta:1
+											})
+										} else {
+											self.$Utils.showToast(c_res.msg,'none')
+										}
+									}
+									self.$apis.bindWechat(c_postData, c_callback);
+								}
+							})
+						} else {
+							self.$Utils.showToast(res.msg,'none')
+						}
+					}
+					self.$apis.login(postData, callback);
+				} else {
+					self.$Utils.showToast('请补全登录信息', 'none')
+				};
+			},
+			
+			register() {
+				const self = this;
+				
+				const postData = {
+					data:self.$Utils.cloneForm(self.registerData)					
+				}
+				/* postData.smsAuth = {						
+					phone:self.registerData.phone,						
+					code:self.submitData.smsCode,
+				}; */
+				var newObject = self.$Utils.cloneForm(self.registerData);
+				delete newObject.code;
+				if (self.$Utils.checkComplete(newObject)) {						
+					const callback = (res) => {
+						if (res.solely_code == 100000) {
+							self.$Utils.showToast(res.msg, 'none');
+							self.registerData = {																
+								phone:'',
+							};
+							self.curr = 1;		
+						} else {
+							self.$Utils.showToast(res.msg, 'none');
+						}
+					}
+					self.$apis.register(postData, callback);
+				} else {
+					self.$Utils.showToast('请补全信息', 'none');
+				};
+			},
+			
 			getMainData() {
 				const self = this;
 				console.log('852369')

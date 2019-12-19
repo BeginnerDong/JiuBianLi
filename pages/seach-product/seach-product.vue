@@ -6,11 +6,11 @@
 				<view class="flex rr" style="width: 85%;">
 					<button class="seachBtn" type="button"></button>
 					<view class="input">
-						<input type="text" name="" value="" placeholder="乌苏 西风 洋河" placeholder-class="placeholder" />
+						<input v-model="keywords" type="text" name="" value="" placeholder="乌苏 西风 洋河" placeholder-class="placeholder" />
 					</view>
-					<view class="delt flex"><text>×</text></view>
+					<view class="delt flex" v-if="keywords!=''" @click="deleteText"><text>×</text></view>
 				</view>
-				<view class="Rseach pubColor fs15">搜索</view>
+				<view class="Rseach pubColor fs15" @click="search">搜索</view>
 			</view>
 			<view class="whiteBj category fs13 color9 flexRowBetween borderB1">
 				<view class="item on flexCenter" @click="zongheShow">综合</view>
@@ -35,17 +35,18 @@
 		
 		<view class="pdlr4 pdt20 pdb15">
 			<view class="proList flex" v-show="!is_styleShow">
-				<view class="item" v-for="(item,index) in proList" :key="index" @click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
+				<view class="item" v-for="(item,index) in mainData" :key="index" 
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
 					<view class="pic">
-						<image src="../../static/images/home-img10.png" mode=""></image>
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flex mgb10">
 							<view class="lab">组合装</view>
 						</view>
 						<view class="flexRowBetween">
-							<view class="price">56.00</view>
+							<view class="price">{{item.price}}</view>
 							<view class="adBtn">+</view>
 						</view>
 					</view>
@@ -53,17 +54,18 @@
 			</view>
 		
 			<view class="proList proList-row" v-show="is_styleShow">
-				<view class="item flexRowBetween" v-for="(item,index) in proList" :key="index" @click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
+				<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index" 
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
 					<view class="pic">
-						<image src="../../static/images/home-img10.png" mode=""></image>
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flex mgb10">
 							<view class="lab">组合装</view>
 						</view>
 						<view class="flexRowBetween B-price">
-							<view class="price">56.00</view>
+							<view class="price">{{item.price}}</view>
 							<view class="adBtn">+</view>
 						</view>
 					</view>
@@ -85,15 +87,39 @@
 				proList:[{},{},{},{},{},{}],
 				is_zongheShow:false,
 				num:1,
-				is_styleShow:false
+				is_styleShow:false,
+				mainData:[],
+				keywords:''
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.keywords = options.keywords;
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
 		methods: {
+			
+			search(){
+				const self = this;
+				if(self.keywords!=''){
+					self.getMainData(true)
+				}else{
+					self.$Utils.showToast('请输入关键词搜索', 'none');
+				}
+			},
+			
 			zongheShow(){
 				const self = this;
 				self.is_show = !self.is_show;
@@ -111,13 +137,38 @@
 				const self = this;
 				self.is_styleShow = !self.is_styleShow;
 			},
-			getMainData() {
+			
+			deleteText(){
 				const self = this;
-				console.log('852369')
+				self.submitData.keywords = ''
+			},
+			
+			getMainData(isNew) {
+				const self = this;
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 5
+					}
+				};
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id: 2,
+					title:['LIKE',['%'+self.keywords+'%']]
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.productGet(postData, callback);
+			},
 		}
 	};
 </script>

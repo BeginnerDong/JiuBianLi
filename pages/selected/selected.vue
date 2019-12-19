@@ -26,34 +26,12 @@
 		
 		<!-- 分类导航 -->
 		<view class="indHome flex  pdt15  whiteBj">
-			<view class="item"  @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
-				<image src="../../static/images/home-select-icon1.png"></image>
-				<view class="tit">甄选</view>
+			<view class="item" v-for="item in typeData" 
+			 @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
+				<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
+				<view class="tit">{{item.title}}</view>
 			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
-				<image src="../../static/images/home-select-icon2.png"></image>
-				<view class="tit">白酒</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
-				<image src="../../static/images/home-select-icon3.png"></image>
-				<view class="tit">葡萄酒</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
-				<image src="../../static/images/home-select-icon4.png"></image>
-				<view class="tit">啤酒</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
-				<image src="../../static/images/home-select-icon5.png"></image>
-				<view class="tit">洋酒</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
-				<image src="../../static/images/home-select-icon6.png"></image>
-				<view class="tit">饮料</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
-				<image src="../../static/images/home-select-icon7.png"></image>
-				<view class="tit">黄酒</view>
-			</view>
+			
 			<view class="item" @click="Router.navigateTo({route:{path:'/pages/selectedClassify/selectedClassify'}})">
 				<image src="../../static/images/home-select-icon8.png"></image>
 				<view class="tit">全部</view>
@@ -62,77 +40,28 @@
 		<view class="f5H10"></view>
 		
 		<view class="interct_idexLis">
-			<view class="child"  @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail'}})">
-				<view class="flex">
-					<view class="photo"><image src="../../static/images/home-select-img.png" mode=""></image></view>
-					<view class="font13 name">信远斋</view>
+			<view class="child"  v-for="item in mainData" 
+			>
+				<view class="flex" :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id}})">
+					<view class="photo">
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
+					</view>
+					<view class="font13 name">{{item.title}}</view>
 				</view>
-				<view class="font14 pdtb15">真材细做，货真价实-信远斋桂花酸梅汤</view>
+				<view class="font14 pdtb15" :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id}})">真材细做，货真价实-信远斋桂花酸梅汤</view>
 				<view class="imgbox">
-					<view class="lisOne">
-						<image src="../../static/images/home-select-img1.png" mode=""></image>
+					<view v-for="(c_item,c_index) in item.bannerImg" :class="item.bannerImg.length==1?'lisOne':(item.bannerImg.length==2?'lisTwo':'lisThree')">
+						<image :src="c_item.url" :data-index="c_index"  :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id+'&index='+$event.currentTarget.dataset.index}})" mode="aspectFill"></image>
 					</view>
 				</view>
 			</view>
-			<view class="child"  @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail'}})">
-				<view class="flex">
-					<view class="photo"><image src="../../static/images/home-select-img.png" mode=""></image></view>
-					<view class="font13 name">信远斋</view>
-				</view>
-				<view class="font14 pdtb15">真材细做，货真价实-信远斋桂花酸梅汤</view>
-				<view class="imgbox">
-					<view class="lisTwo">
-						<image src="../../static/images/home-select-img1.png" mode=""></image>
-					</view>
-					<view class="lisTwo">
-						<image src="../../static/images/stoers-img.png" mode=""></image>
-					</view>
-				</view>
-			</view>
-			<view class="child"  @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail'}})">
-				<view class="flex">
-					<view class="photo"><image src="../../static/images/home-select-img.png" mode=""></image></view>
-					<view class="font13 name">信远斋</view>
-				</view>
-				<view class="font14 pdtb15">真材细做，货真价实-信远斋桂花酸梅汤</view>
-				<view class="imgbox">
-					<view class="lisThree">
-						<image src="../../static/images/home-select-img1.png" mode=""></image>
-					</view>
-					<view class="lisThree">
-						<image src="../../static/images/stoers-img.png" mode=""></image>
-					</view>
-					<view class="lisThree">
-						<image src="../../static/images/home-select-img1.png" mode=""></image>
-					</view>
-				</view>
-			</view>
+			
 		</view>
 		
-		<view class="pdlr4">
+		<!-- <view class="pdlr4">
 			<view class="pdb10 pdt5"><image class="w" src="../../static/images/home-select-img2.png" mode="widthFix"></image></view>
-		</view>
-		
-		<view class="interct_idexLis">
-			<view class="child"  @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail'}})">
-				<view class="flex">
-					<view class="photo"><image src="../../static/images/home-select-img.png" mode=""></image></view>
-					<view class="font13 name">信远斋</view>
-				</view>
-				<view class="font14 pdtb15">真材细做，货真价实-信远斋桂花酸梅汤</view>
-				<view class="imgbox">
-					<view class="lisThree">
-						<image src="../../static/images/home-select-img1.png" mode=""></image>
-					</view>
-					<view class="lisThree">
-						<image src="../../static/images/stoers-img.png" mode=""></image>
-					</view>
-					<view class="lisThree">
-						<image src="../../static/images/home-select-img1.png" mode=""></image>
-					</view>
-				</view>
-			</view>
-		</view>
+		</view> -->
+
 		
 		
 		<!--底部tab键-->
@@ -174,22 +103,92 @@
 				Router:this.$Router,
 				showView: false,
 				wx_info:{},
-				is_show:false
+				is_show:false,
+				typeData:[],
+				idArray:[],
+				mainData:[]
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getTypeData'], self);
 		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
 		methods: {
-			getMainData() {
+			
+			getTypeData() {
 				const self = this;
-				console.log('852369')
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					thirdapp_id: 2,
+				};
+				postData.getBefore = {
+					caseData: {
+						tableName: 'Label',
+						searchItem: {
+							title: ['=', ['品类精选']],
+						},
+						middleKey: 'parentid',
+						key: 'id',
+						condition: 'in',
+					},
+				};
+				postData.order = {
+					listorder:'desc'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.typeData.push.apply(self.typeData, res.info.data);
+						for (var i = 0; i < self.typeData.length; i++) {
+							self.idArray.push(self.typeData[i].id)
+						}
+					}
+					self.getMainData()
+					console.log('self.typeData', self.typeData)
+					self.$Utils.finishFunc('getTypeData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			
+			getMainData(isNew) {
+				const self = this;
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 5
+					}
+				};
+				const postData = {};
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id: 2,
+					menu_id:['in',self.idArray]
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+					}
+					console.log('self.mainData', self.mainData)
+					
+				};
+				self.$apis.articleGet(postData, callback);
+			},
+			
 		}
 	};
 </script>

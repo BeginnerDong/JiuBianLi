@@ -17,7 +17,8 @@
 			
 			<view class="fs13 pdlr4 borderB1 flexRowBetween whiteBj">
 				<view class="orderNav flex" style="width:90% ;">
-					<view class="tt" :class="curr==index?'on':''" @click="changeCurr(index)" v-for="(item,index) in navDate" :key="index">{{item}}</view>
+					<view class="tt" v-for="(item,index) in typeData" :class="currId==item.id?'on':''" 
+					@click="changeCurr(item.id)"  :key="index" v-if="index<5">{{item.title}}</view>
 				</view>
 				<view class="flexEnd navdian" style="width: 10%;" @click="moreClass">
 					<span></span>
@@ -50,34 +51,36 @@
 		
 		<view class="pdlr4 pdt20 pdb15">
 			<view class="proList flex" v-show="!is_styleShow">
-				<view class="item" v-for="(item,index) in proList" :key="index" @click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
-					<view class="pic">
-						<image src="../../static/images/home-img10.png" mode=""></image>
+				<view class="item" v-for="(item,index) in mainData" :key="index" >
+					<view class="pic" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flex mgb10">
 							<view class="lab">组合装</view>
 						</view>
 						<view class="flexRowBetween">
-							<view class="price">56.00</view>
+							<view class="price">{{item.price}}</view>
 							<view class="adBtn">+</view>
 						</view>
 					</view>
 				</view>
 			</view>
 			<view class="proList proList-row" v-show="is_styleShow">
-				<view class="item flexRowBetween" v-for="(item,index) in proList" :key="index" @click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
-					<view class="pic">
-						<image src="../../static/images/home-img10.png" mode=""></image>
+				<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index">
+					<view class="pic" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flex mgb10">
 							<view class="lab">组合装</view>
 						</view>
 						<view class="flexRowBetween B-price">
-							<view class="price">56.00</view>
+							<view class="price">{{item.price}}</view>
 							<view class="adBtn">+</view>
 						</view>
 					</view>
@@ -117,11 +120,11 @@
 		<!-- 更多分类导航 -->
 		<view class="indHome flex pdt15 moreClass pr" v-show="is_moreClass">
 			<view class="colseBtn" style="top: auto;bottom: -120rpx;"  @click="moreClass">×</view>
-			<view class="item"  @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon.png"></image>
-				<view class="tit">白酒</view>
+			<view class="item"  v-for="item in typeData" @click="changeCurr(item.id)">
+				<image :src="item.bannerImg&&item.bannerImg[0]?item.bannerImg[0].url:''"></image>
+				<view class="tit">{{item.title}}</view>
 			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
+			<!-- <view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
 				<image src="../../static/images/classification-icon1.png"></image>
 				<view class="tit">葡萄酒</view>
 			</view>
@@ -156,7 +159,7 @@
 			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
 				<image src="../../static/images/classification-icon9.png"></image>
 				<view class="tit">生鲜</view>
-			</view>
+			</view> -->
 		</view>
 	
 		
@@ -171,26 +174,107 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				curr:0,
+				currId:0,
 				num:1,
 				navDate: ['白酒','葡萄酒','黄酒','啤酒','洋酒'],
 				proList:[{},{},{},{},{},{}],
 				is_zongheShow:false,
 				is_showT:false,
 				is_moreClass:false,
-				is_styleShow:false
+				is_styleShow:false,
+				mainData:[],
+				typeData:[]
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.id = options.id;
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getTypeData'], self);
 		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
 		methods: {
+			
+			
+			getTypeData() {
+				const self = this;
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+				};
+				postData.getBefore = {
+					caseData: {
+						tableName: 'Label',
+						searchItem: {
+							title: ['=', ['分类']],
+						},
+						middleKey: 'parentid',
+						key: 'id',
+						condition: 'in',
+					},
+				};
+				postData.order = {
+					listorder:'desc'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.typeData.push.apply(self.typeData, res.info.data);
+						self.currId = self.typeData[0].id
+					}
+					console.log('self.typeData', self.typeData)
+					self.getMainData()
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			getMainData(isNew) {
+				const self = this;
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 5
+					}
+				};
+				const postData = {};
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id: 2,
+					category_id:self.currId,
+					type:1
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getTypeData');
+				};
+				self.$apis.productGet(postData, callback);
+			},
+			
 			changeCurr(index){
 				const self = this;
-				self.curr = index
+				self.currId = index;
+				if(self.is_moreClass){
+					self.is_showT = !self.is_showT;
+					self.is_moreClass = !self.is_moreClass
+				};
+				self.getMainData(true)
 			},
+			
 			changeNum(num){
 				const self = this;
 				if(num!=self.num){
@@ -213,13 +297,7 @@
 				self.is_showT = !self.is_showT;
 				self.is_moreClass = !self.is_moreClass
 			},
-			getMainData() {
-				const self = this;
-				console.log('852369')
-				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+			
 		}
 	};
 </script>
