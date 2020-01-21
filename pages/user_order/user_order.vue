@@ -9,78 +9,41 @@
 		</view>
 		<view class="pdlr4">
 			<view class="proList proList-row">
-				<view class="item">
+				<view class="item" v-for="(item,index) in mainData" :key="index">
 					<view class="flexRowBetween mglr4 pdtb10">
-						<view class="fs12 color9">交易时间：2018-08-30</view>
-						<view class="fs12 red">待确认</view>
+						<view class="fs12 color9">交易时间：{{item.create_time}}</view>
+						<view class="fs12 red" v-if="item.pay_status==0">待确认</view>
+						<view class="fs12 red" v-if="item.pay_status==1&&(item.transport_status==1||item.transport_status==0)">配送中</view>
+						<view class="fs12 red" v-if="item.pay_status==1&&item.transport_status==2">已完成</view>
+						<view class="fs12 red" v-if="item.isremark==1">已评价</view>
 					</view>
-					<view class="flexRowBetween">
+					<view class="flexRowBetween" v-for="(c_item,c_index) in item.child">
 						<view class="pic">
-							<image src="../../static/images/home-img10.png" mode=""></image>
+							<image :src="c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product
+							&&c_item.orderItem[0].snap_product.mainImg&&c_item.orderItem[0].snap_product.mainImg[0]?c_item.orderItem[0].snap_product.mainImg[0].url:''" mode=""></image>
 						</view>
 						<view class="infor">
-							<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+							<view class="title avoidOverflow">{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.title:''}}</view>
 							
 							<view class="flexRowBetween B-price">
-								<view class="price fs14">56.00</view>
-								<view class="flex">×1</view>
+								<view class="price fs14">{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.price:''}}</view>
+								<view class="flex">×{{c_item.count}}</view>
 							</view>
 						</view>
 					</view>
+					<view class="mglr4 pdtb15" v-if="item.isremark==1">
+						<view class="pdlr4 pdt10 pdb10 f5bj radius8 fs12">科就回归考虑到双方各烘干机撒联合国何健飞道快乐十分个分类山沟加工费是发的是</view>
+					</view>
 					<view class="pdlr4">
-						<view class="flexEnd pdtb15">共1件商品 合计:￥56</view>
+						<view class="flexEnd pdtb15">共{{item.totalCount}}件商品 合计:￥{{item.price}}</view>
 						<div class="underBtn flexEnd pdb15">
-							<span class="Bbtn">去支付</span>
+							<span class="Bbtn" v-if="item.pay_status==0">去支付</span>
+							<view class="Bbtn" v-if="item.pay_status==1&&item.transport_status==2&&item.isremark==0"
+							@click="Router.navigateTo({route:{path:'/pages/user_orderPingJia/user_orderPingJia'}})">去评价</view>
 						</div>
 					</view>
 				</view>
-				<view class="item">
-					<view class="flexRowBetween mglr4 pdtb10">
-						<view class="fs12 color9">交易时间：2018-08-30</view>
-						<view class="fs12 red">已完成</view>
-					</view>
-					<view class="flexRowBetween">
-						<view class="pic">
-							<image src="../../static/images/home-img10.png" mode=""></image>
-						</view>
-						<view class="infor">
-							<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
-							
-							<view class="flexRowBetween B-price">
-								<view class="price fs14">56.00</view>
-								<view class="flex">×1</view>
-							</view>
-						</view>
-					</view>
-					<view class="pdlr4">
-						<view class="flexEnd pdtb15">共1件商品 合计:￥56</view>
-						<view class="underBtn flexEnd pdb15">
-							<view class="Bbtn" @click="Router.navigateTo({route:{path:'/pages/user_orderPingJia/user_orderPingJia'}})">去评价</view>
-						</view>
-					</view>
-				</view>
-				<view class="item">
-					<view class="flexRowBetween mglr4 pdtb10">
-						<view class="fs12 color9">交易时间：2018-08-30</view>
-						<view class="fs12 red">已评价</view>
-					</view>
-					<view class="flexRowBetween">
-						<view class="pic">
-							<image src="../../static/images/home-img10.png" mode=""></image>
-						</view>
-						<view class="infor">
-							<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
-							
-							<view class="flexRowBetween B-price">
-								<view class="price fs14">56.00</view>
-								<view class="flex">×1</view>
-							</view>
-						</view>
-					</view>
-					<view class="mglr4 pdtb15">
-						<view class="pdlr4 pdt10 pdb10 f5bj radius8 fs12">科就回归考虑到双方各烘干机撒联合国何健飞道快乐十分个分类山沟加工费是发的是</view>
-					</view>
-				</view>
+				
 			</view>
 		</view>
 		
@@ -95,28 +58,107 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				current:1
+				current:1,
+				searchItem:{
+					level:1
+				},
+				mainData:[]
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getMainData'], self);
+		
 		},
+		
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
 		methods: {
+			
 			change(current) {
 				const self = this;
 				if(current!=self.current){
-					self.current = current
+					self.current = current;
+					if(self.current==1){
+						delete self.searchItem.pay_status;
+						delete self.searchItem.transport_status;
+						delete self.searchItem.isremark;
+					}else if(self.current==2){
+						self.searchItem.pay_status=0
+					}else if(self.current==3){
+						self.searchItem.pay_status=1
+						self.searchItem.transport_status=1
+					}else if(self.current==4){
+						self.searchItem.pay_status=1
+						self.searchItem.transport_status=2
+					}else if(self.current==5){
+						self.searchItem.pay_status=1
+						self.searchItem.isremark=1
+					}
+					self.getMainData(true)
 				}
 			},
-			getMainData() {
+			
+			getMainData(isNew) {
 				const self = this;
-				console.log('852369')
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 10
+					}
+				};
 				const postData = {};
 				postData.tokenFuncName = 'getProjectToken';
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = self.$Utils.cloneForm(self.searchItem);
+				postData.getAfter = {
+					product:{
+						tableName:'Product',
+						middleKey:'product_id',
+						key:'id',
+						searchItem:{
+							status:1
+						},
+						condition:'='
+					},
+					sku:{
+						tableName:'Sku',
+						middleKey:'sku_id',
+						key:'id',
+						searchItem:{
+							status:1
+						},
+						condition:'='
+					}
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+						for (var i = 0; i < self.mainData.length; i++) {
+							self.mainData[i].totalCount = 0;
+							for (var j = 0; j < self.mainData[i].child.length; j++) {
+								self.mainData[i].totalCount += self.mainData[i].child[j].count
+							}
+						}
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
 				self.$apis.orderGet(postData, callback);
-			}
+			},
 		}
 	};
 </script>

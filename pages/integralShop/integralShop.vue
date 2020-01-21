@@ -19,19 +19,23 @@
 		<view class="pdlr4 pdt15">
 			<view class="fs15 pdb10 ftw">商品</view>
 			<view class="proList proList-row">
-				<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+				<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index" >
+					<view class="pic" :data-id="item.id"
 				@click="Router.navigateTo({route:{path:'/pages/integralDetail/integralDetail?id='+$event.currentTarget.dataset.id}})">
-					<view class="pic">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
 						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flexRowBetween B-price fs12 color6">
 							<view>单价：{{item.price}}积分</view>
-							<view class="jf-num">
-								{{canBuy?'兑换':'积分不足'}}
+							<view class="jf-num godui" v-if="item.canBuy" 
+							@click="goBuy(index)">
+								确认兑换
 							</view>
-							<view class="jf-num godui" @click="Router.navigateTo({route:{path:'/pages/integral_orderConfirm/integral_orderConfirm'}})">确认兑换</view>
+							<view class="jf-num" v-else>
+								积分不足
+							</view>
+							
 						</view>
 					</view>
 				</view>
@@ -71,6 +75,29 @@
 		},
 		
 		methods: {
+			
+			goBuy(index) {
+				const self = this;
+				console.log(index)
+				if (index==undefined) {
+					self.$Utils.showToast('商品错误', 'none', 1000);
+					return;
+				};
+				var orderList = {
+					product: [{
+						id: self.mainData[index].id,
+						count: 1,
+						product: self.mainData[index]
+					}],
+					type:self.mainData[index].type,
+				};
+				uni.setStorageSync('payPro', orderList);
+				self.$Router.navigateTo({
+					route: {
+						path: '/pages/integral_orderConfirm/integral_orderConfirm'
+					}
+				})
+			},
 			
 			getUserInfoData() {
 				const self = this;

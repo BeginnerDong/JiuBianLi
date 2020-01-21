@@ -40,8 +40,7 @@
 		<view class="f5H10"></view>
 		
 		<view class="interct_idexLis">
-			<view class="child"  v-for="item in mainData" 
-			>
+			<view class="child"  v-for="item in mainData" >
 				<view class="flex" :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="photo">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>

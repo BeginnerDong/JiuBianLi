@@ -44,7 +44,7 @@
 			<view class="proList flex">
 				<view class="item" v-for="(item,index) in mainData" :key="index" @click="Router.redirectTo({route:{path:'/pages/prodetail/prodetail'}})">
 					<view class="pic">
-						<image src="../../static/images/home-img10.png" mode=""></image>
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
 						<view class="title avoidOverflow">{{item.title}}</view>

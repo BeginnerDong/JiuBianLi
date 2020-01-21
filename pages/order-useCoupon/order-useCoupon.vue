@@ -2,13 +2,13 @@
 	<view>
 		
 		<view class="couponlist list mglr4">
-			<view class="fs13 pdtb15">您有<text class="red" style="padding: 0 6rpx;">2</text>张优惠券可用</view>
-			<view class="item flexRowBetween" v-for="(item,index) in couponShowData" :key="index" @click="changeCurr(index)">
+			<view class="fs13 pdtb15">您有<text class="red" style="padding: 0 6rpx;">{{mainData.length}}</text>张优惠券可用</view>
+			<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index" @click="changeCurr(index)">
 				<view class="flex ll">
-					<view class="mny">{{item.price}}</view>
+					<view class="mny">{{item.value}}</view>
 					<view class="infor">
-						<view class="fs13">{{item.title}}({{item.lable}})</view>
-						<view class="flex mgt10 color6 fs12">有效期至：2019-12-30</view>
+						<view class="fs13">{{item.value}}元优惠券</view>
+						<view class="flex mgt10 color6 fs12">满{{item.condition}}元可用</view>
 					</view>
 				</view>
 				<view class="rr flexCenter">
@@ -18,7 +18,8 @@
 		</view>
 		
 		<view class="submitbtn" style="margin-top: 100rpx;">
-			<button class="btn" type="button"  @click="Router.navigateTo({route:{path:'/pages/orderConfirm/orderConfirm'}})">确定</button>
+			<button class="btn" type="button"  
+			@click="Router.back(1)">确定</button>
 		</view>
 		
 	</view>
@@ -32,30 +33,49 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				curr:0,
+				curr:-1,
 				couponShowData:[
 					{price:'5',title:'5元优惠券',lable:'香烟不可用',infor:'满50元使用',},
 					{price:'10',title:'10元优惠券',lable:'香烟不可用',infor:'满100元使用'}
-				]
+				],
+				mainData:[]
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
 		methods: {
+			
 			changeCurr(index){
 				const self = this;
-				self.curr = index
+				self.curr = index;
+				uni.setStorageSync('couponId',self.mainData[self.curr].id);
 			},
+			
 			getMainData() {
 				const self = this;
-				console.log('852369')
+				var now = Date.parse(new Date());
 				const postData = {};
 				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					use_step: 1,
+					type: ['in', [1, 2]]
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data)
+					}
+					
+					self.$Utils.finishFunc('getMainData');
+					
+				};
+				self.$apis.userCouponGet(postData, callback);
+			},
+			
+			
 		}
 	};
 </script>

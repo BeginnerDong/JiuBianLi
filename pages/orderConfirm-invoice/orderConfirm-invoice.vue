@@ -76,6 +76,7 @@
 	export default {
 		data() {
 			return {
+				Utils:this.$Utils,
 				Router:this.$Router,
 				showView: false,
 				wx_info:{},
@@ -96,7 +97,9 @@
 		
 		onLoad(options) {
 			const self = this;
-			self.id = options.id;
+			if(options.id){
+				self.id = options.id;
+			}
 			self.$Utils.loadAll(['getMainData'], self);
 		},
 		
@@ -125,24 +128,29 @@
 				};
 				postData.data = {};
 				postData.data = self.$Utils.cloneForm(self.submitData);
-				postData.saveAfter = [
-					{
-						tableName: 'Order',
-						FuncName: 'update',
-						data: {
-							receipt:1,
-							receipt_status:1,
-							snap_receipt:self.$Utils.cloneForm(self.submitData)
-						},
-						searchItem:{
-							id:self.id
+				if(self.id){
+					postData.saveAfter = [
+						{
+							tableName: 'Order',
+							FuncName: 'update',
+							data: {
+								receipt:1,
+								receipt_status:1,
+								snap_receipt:self.$Utils.cloneForm(self.submitData)
+							},
+							searchItem:{
+								id:self.id
+							}
 						}
-					}
-				];	
+					];	
+				}
 				const callback = (data) => {				
 					if (data.solely_code == 100000) {
 						uni.setStorageSync('canClick', true);
 						self.$Utils.showToast('申请成功', 'none');
+						if(!self.id){
+							uni.setStorageSync('receiptData', self.submitData);
+						};
 						setTimeout(function() {
 							uni.navigateBack({
 								delta:1

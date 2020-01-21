@@ -3,11 +3,11 @@
 		<view class="orderNav flex fs13 borderB1">
 			<view class="tt" :class="curr==1?'on':''" @click="changeCurr('1')">商品</view>
 			<view class="tt" :class="curr==2?'on':''" @click="changeCurr('2')">评论</view>
-			<view class="tt" :class="curr==3?'on':''" @click="changeCurr('3')">详情</view>
+			<view  class="tt" :class="curr==3?'on':''" @click="changeCurr('3')">详情</view>
 		</view>
 		
 		<!-- 商品 -->
-		<view class="" v-show="curr==1">
+		<view class="" v-if="curr==1">
 			<!-- banner -->
 			<view class="banner-box">
 				<swiper class="swiper-box flex" indicator-dots="true" autoplay="true" interval="3000" duration="1000"  indicator-active-color="#FF2121">
@@ -31,9 +31,7 @@
 					<view class="flex">
 						<view class="ftw">领券</view>
 						<view class="flex fs12 center C-canshu lingQuan">
-							<view class="item">满50减5</view>
-							<view class="item">满100减10</view>
-							<view class="item">满100减10</view>
+							<view class="item" v-for="(item,index) in couponData" v-if="index<3">满{{item.condition}}减{{item.value}}</view>
 						</view>
 					</view>
 					<view><image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
@@ -66,33 +64,35 @@
 				<view class="flexRowBetween pdt15 pdb15">
 					<view class="flex">
 						<view class="ftw mgr15">评价</view>
-						<view class="fs12 color6">540人</view>
+						<view class="fs12 color6">{{totalMessage}}人</view>
 					</view>
 					<view class="color6 fs12 flexEnd">好评度99.4%<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
 				</view>
-				<view class="flexRowBetween pdb15">
-					<view class="flex">
-						<image class="us-photo mgr10" src="../../static/images/details-img1.png" mode=""></image>
-						<view class="color6">
-							<view class="fs13">快乐的猫</view>
-							<view class="fs10">2019.11.29</view>
+				<view  v-if="messageData.length>0">
+					<view class="flexRowBetween pdb15">
+						<view class="flex">
+							<image class="us-photo mgr10" 
+							:src="message[0].mainImg&&message[0].mainImg[0]?message[0].mainImg[0].url:''" mode=""></image>
+							<view class="color6">
+								<view class="fs13">{{message[0].title}}</view>
+								<view class="fs10">{{message[0].create_time}}</view>
+							</view>
+						</view>
+						<view class="xing flexEnd">
+							<view class="starBox mgr5">
+								<image v-for="c_item in stars" :src="message[0].score/2 > c_item ?(message[0].score/2-c_item == 0.5?halfSrc:selectedSrc) : normalSrc" mode="">
+								
+								</image>
+							</view>
+							<view class="fs12 color9">{{message[0].score}}分</view>
 						</view>
 					</view>
-					<view class="xing flexEnd">
-						<view class="starBox mgr5">
-							<image src="../../static/images/details-icon1.png" mode=""></image>
-							<image src="../../static/images/details-icon1.png" mode=""></image>
-							<image src="../../static/images/details-icon1.png" mode=""></image>
-							<image src="../../static/images/details-icon1.png" mode=""></image>
-							<image src="../../static/images/details-icon2.png" mode=""></image>
-						</view>
-						<view class="fs12 color9">8分</view>
+					<view class="fs13">{{message[0].content}}</view>
+					<view class="flexCenter">
+						<view class="moreBtn mgt20 mgb20 fs12">更多评价</view>
 					</view>
 				</view>
-				<view class="fs13">好的浓香型白酒用语是,酒体清亮透明,入口绵甜,落口爽净,回味悠长,值得信赖。</view>
-				<view class="flexCenter">
-					<view class="moreBtn mgt20 mgb20 fs12">更多评价</view>
-				</view>
+				<view v-else style="text-align: center;">暂无评论~</view>
 			</view>
 			<view class="f5H5"></view>
 			<view class="mglr4 pdt15 pdb15">
@@ -119,15 +119,16 @@
 				
 				<view class="f5bj pdb15">
 					<view class="proList flex">
-						<view class="item" v-for="(item,index) in proList" :key="index" @click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
+						<view class="item" v-for="(item,index) in productData" :key="index" :data-id="item.id"
+						@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 							<view class="pic">
-								<image src="../../static/images/home-img10.png" mode=""></image>
+								<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 							</view>
 							<view class="infor">
-								<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+								<view class="title avoidOverflow">{{item.title}}</view>
 								<view class="flexRowBetween">
-									<view class="price">56.00</view>
-									<view class="yuanJia">56.00</view>
+									<view class="price">{{item.price}}</view>
+									<view class="yuanJia">{{item.o_price}}</view>
 								</view>
 							</view>
 						</view>
@@ -138,70 +139,73 @@
 		<!-- 商品 end -->
 		
 		<!-- 评论 -->
-		<view class="" v-show="curr==2">
+		<view class="" v-if="curr==2">
 			<view class="pingjia">
 				<view class="flexRowBetween pdt15 mglr4">
 					<view class="flex">
 						<view class="ftw mgr15">评价</view>
-						<view class="fs12 color6">540人</view>
+						<view class="fs12 color6">{{totalMessage}}人</view>
 					</view>
 					<view class="color6 fs12 flexEnd">好评度99.4%<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
 				</view>
-				<view class="pjList" v-for="(item,index) in pingjiaList" :key="index">
+				<view class="pjList" v-for="(item,index) in messageData" :key="index">
 					<view class="flexRowBetween pdb15">
 						<view class="flex">
-							<image class="us-photo mgr10" src="../../static/images/details-img1.png" mode=""></image>
+							<image class="us-photo mgr10" 
+							:src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 							<view class="color6">
-								<view class="fs13">快乐的猫</view>
-								<view class="fs10">2019.11.29</view>
+								<view class="fs13">{{item.title}}</view>
+								<view class="fs10">{{item.create_time}}</view>
 							</view>
 						</view>
 						<view class="xing flexEnd">
+						
 							<view class="starBox mgr5">
-								<image src="../../static/images/details-icon1.png" mode=""></image>
-								<image src="../../static/images/details-icon1.png" mode=""></image>
-								<image src="../../static/images/details-icon1.png" mode=""></image>
-								<image src="../../static/images/details-icon1.png" mode=""></image>
-								<image src="../../static/images/details-icon2.png" mode=""></image>
+								<image v-for="c_item in stars" :src="item.score/2 > c_item ?(item.score/2-c_item == 0.5?halfSrc:selectedSrc) : normalSrc" mode="">
+								
+								</image>
 							</view>
-							<view class="fs12 color9">8分</view>
+							<view class="fs12 color9">{{item.score}}分</view>
 						</view>
 					</view>
-					<view class="fs13">好的浓香型白酒用语是,酒体清亮透明,入口绵甜,落口爽净,回味悠长,值得信赖。</view>
+					<view class="fs13">{{item.content}}</view>
+				</view>
+				<view class="pjList" style="text-align: center">
+					暂无评论~
 				</view>
 			</view>
 		</view>
 		
 		<!-- 详情 -->
-		<view class="pdt5" v-show="curr==3">
+		<view class="pdt5" v-if="curr==3">
 			<view class="content ql-editor" style="padding:0;line-height: 0;" v-html="mainData.content">
 			</view>
 		</view>
 		
-		<view class="black-bj" v-show="is_show"></view>
+		<view class="black-bj" v-if="is_show"></view>
 		
 		<!-- 优惠券弹框 -->
-		<view class="couponShow f5bj pdlr4" v-show="is_couponShow">
+		<view class="couponShow f5bj pdlr4" v-if="is_couponShow">
 			<view class="closebtn fs18 color6 pdr10 pdl10 mgt5" @click="couponShow">×</view>
 			<view class="pdt15 pdb15 center">可领优惠券</view>
 			<view class="couponlist list">
-				<view class="item flexRowBetween" v-for="(item,index) in couponShowData" :key="index">
+				<view class="item flexRowBetween" v-for="(item,index) in couponData" :key="index">
 					<view class="flex ll">
-						<view class="mny">5</view>
+						<view class="mny">{{item.value}}</view>
 						<view class="infor fs12">
-							<view>5元优惠券(香烟不可用)</view>
-							<view class="flex mgt15"><view class="labBtn">满50元可用</view></view>
+							<view>{{item.value}}元优惠券</view>
+							<view class="flex mgt15"><view class="labBtn">满{{item.condition}}元可用</view></view>
 						</view>
 					</view>
 					<view class="rr flexEnd">
-						<view class="lq-btn">领取</view>
+						<view class="lq-btn" @click="submit(index)">领取</view>
 					</view>
 				</view>
 			</view>
 		</view>
 		
 		<!-- 规格弹框 -->
-		<view class="specsShow whiteBj pdlr4" v-show="is_specsShow">
+		<view class="specsShow whiteBj pdlr4" v-if="is_specsShow">
 			<view class="closebtn fs18 color6 pdr10 pdl10 mgt5" @click="specsShow">×</view>
 			<view class="pdt15 pdb15 center borderB1">规格</view>
 			<view class="editLine fs13">
@@ -241,17 +245,18 @@
 		</view>
 			
 		<!-- 底部菜单按钮 -->
-		<view class="xqbotomBar flexRowBetween" v-show="!is_carNumShow">
+		<view class="xqbotomBar flexRowBetween" v-if="!is_carNumShow">
 			<view class="left flexRowBetween">
-				<view class="ite" @click="Router.navigateTo({route:{path:'/pages/index/index'}})">
-					<image src="../../static/images/details-icon7.png" mode=""></image>
-					<view>75人</view>
+				<view class="ite" @click="collect()">
+					<image :src="mainData.collectMe.length>0&&mainData.collectMe[0].status==1?
+					'../../static/images/details-icon7-a.png':'../../static/images/details-icon7.png'" mode=""></image>
+					<view>{{mainData.collect.length}}人</view>
 				</view>
-				<view class="ite">
+				<view class="ite" @click="callPhone">
 					<image src="../../static/images/details-icon8.png" mode=""></image>
 					<view>客服</view>
 				</view>
-				<view class="ite">
+				<view class="ite" @click="Router.redirectTo({route:{path:'/pages/car/car'}})">
 					<image src="../../static/images/details-icon9.png" mode=""></image>
 					<view>购物车</view>
 				</view>
@@ -261,18 +266,19 @@
 		<!-- 底部菜单按钮 end -->
 		
 		<!-- 底部菜单按钮 -->
-		<view class="xqbotomBar flexRowBetween" v-show="is_carNumShow">
+		<view class="xqbotomBar flexRowBetween" v-if="is_carNumShow">
 			<view class="left flexRowBetween">
 				<view class="ite">
-					<image src="../../static/images/details-icon7.png" mode=""></image>
-					<view>75人</view>
+					<image :src="mainData.collectMe.length>0&&mainData.collectMe[0].status==1?
+					'../../static/images/details-icon7-a.png':'../../static/images/details-icon7.png'" mode=""></image>
+					<view>{{mainData.collect.length}}人</view>
 				</view>
-				<view class="ite">
+				<view class="ite" @click="callPhone">
 					<image src="../../static/images/details-icon8.png" mode=""></image>
 					<view>客服</view>
 				</view>
 				<view class="ite pr" @click="Router.redirectTo({route:{path:'/pages/car/car'}})">
-					<view class="car-num">1</view>
+					<view class="car-num">{{mainData.count}}</view>
 					<image src="../../static/images/details-icon9.png" mode=""></image>
 					<view>购物车</view>
 				</view>
@@ -280,7 +286,7 @@
 			<view class="flexCenter" style="width: 38%;">
 				<view class="numBox flex">
 					<view @click="counter('-')">-</view>
-					<view class="num pubColor">{{count}}</view>
+					<view class="num pubColor">{{mainData.count}}</view>
 					<view class="pubBj" style="color:  white;" @click="counter('+')">+</view>
 				</view>
 			</view>
@@ -295,38 +301,188 @@
 		data() {
 			return {
 				Router:this.$Router,
-				showView: false,
-				wx_info:{},
 				is_show:false,
 				curr:1,
-				labelData: [
-					"../../static/images/details-img.png",
-					"../../static/images/details-img.png",
-					"../../static/images/details-img.png",
-				],
-				proList:[{},{},{},{}],
-				pingjiaList:[{},{},{},{},{},{},{}],
-				couponShowData:[{},{},{},{}],
 				is_couponShow:false,
 				is_specsShow:false,
 				count:1,
 				is_carNumShow:false,
-				mainData:{}
+				mainData:{},
+				couponData:[],
+				totalMessage:0,
+				stars: [0, 1, 2, 3, 4],
+				normalSrc: '../../static/images/details-icon2.png',
+				selectedSrc: '../../static/images/details-icon1.png',
+				halfSrc: '../../static/images/details-icon1-a.png',
+				messageData:[],
+				cartData:[],
+				
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
 			self.id = options.id;
-			self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getMainData','getCouponData','getLabelData'], self);
 		},
+		
+		onShow(){
+			const self = this;
+			self.cartData = self.$Utils.getStorageArray('cartData');
+			console.log('self.cartData',self.cartData)
+		},
+		
 		methods: {
+			
+			collect(){
+				const self = this;
+				if(self.mainData.collectMe.length>0){
+					self.logUpdate()
+				}else{
+					self.logAdd()
+				}
+			},
+			
+			logUpdate() {
+				const self = this;
+				
+				const postData = {
+					tokenFuncName: 'getProjectToken',
+					searchItem:{
+						id:self.mainData.collectMe[0].id
+					}
+				};
+				postData.data = {
+				};
+				if(self.mainData.collectMe[0].status==1){
+					postData.data.status=-1
+				}else{
+					postData.data.status=1
+				};
+				console.log('postData', postData)
+				const callback = (res) => {
+					if (res && res.solely_code == 100000) {
+						if(self.mainData.collectMe[0].status==1){
+							self.$Utils.showToast('取消成功', 'none');
+						}else{
+							self.$Utils.showToast('收藏成功', 'none');
+						}
+						setTimeout(function() {
+							self.getMainData()
+						}, 1000);
+					} else {
+						self.$Utils.showToast(res.msg, 'none')
+					}
+				};
+				self.$apis.logUpdate(postData, callback);
+			},
+			
+			logAdd() {
+				const self = this;
+				
+				const postData = {
+					tokenFuncName: 'getProjectToken',
+				};
+				postData.data = {
+					thirdapp_id:2,
+					relation_id:self.mainData.id,
+					relation_table:'product',
+					type:2,
+					user_no:uni.getStorageSync('user_info').user_no,
+					
+				};
+				console.log('postData', postData)
+				const callback = (res) => {
+					if (res && res.solely_code == 100000) {
+						self.$Utils.showToast('收藏成功', 'none');
+						setTimeout(function() {
+							self.getMainData()
+						}, 1000);
+					} else {
+						self.$Utils.showToast(res.msg, 'none')
+					}
+				};
+				self.$apis.logAdd(postData, callback);
+			},
+			
+			getLabelData() {
+				const self = this;
+				const postData = {};
+				
+				postData.searchItem = {
+					thirdapp_id:2,
+					title:'客服电话'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.labelData = res.info.data[0];
+					}
+					console.log('self.labelData', self.labelData)
+					self.$Utils.finishFunc('getLabelData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			callPhone(phone){
+				const self = this;
+				uni.makePhoneCall({
+				    phoneNumber: self.labelData.description
+				});
+			},
+			
+			submit(index){
+				const self = this;
+				self.orderList = [
+					{coupon_id:self.couponData[index].id,count:1,type:self.couponData[index].type}
+				];
+				self.couponAdd()
+			},
+			
+			couponAdd() {
+				const self = this;
+				var now =  (new Date()).getTime();
+				const postData = {
+					tokenFuncName: 'getProjectToken',
+				};
+				postData.couponList = self.$Utils.cloneForm(self.orderList);
+				postData.pay = {
+					score: 0
+				};
+				console.log('postData', postData)
+				const callback = (res) => {
+					if (res && res.solely_code == 100000) {
+						self.$Utils.showToast('领取成功', 'none')
+					} else {
+						self.$Utils.showToast(res.msg, 'none')
+					}
+				};
+				self.$apis.couponAdd(postData, callback);
+			},
+			
+			getCouponData() {
+				const self = this;
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.couponData.push.apply(self.couponData, res.info.data);
+					}
+					console.log('self.couponData', self.couponData)
+					self.$Utils.finishFunc('getCouponData');
+				};
+				self.$apis.couponGet(postData, callback);
+			},
+			
 			changeCurr(curr){
 				const self = this;
 				if(curr!=self.curr){
 					self.curr = curr
 				}
 			},
+			
 			couponShow(){
 				const self = this;
 				self.is_show =!self.is_show;
@@ -340,17 +496,26 @@
 			counter(type) {
 				const self = this;			
 				if (type == '+') {
-					self.count++;
+					self.mainData.count++;
+					console.log(232)
 				} else {
-					if (self.count > 1) {
-						self.count--;
+					if (self.mainData.count > 1) {
+						self.mainData.count--;
 					}
-				};			
-				self.countTotalPrice();
+				};
+				
+				self.$Utils.setStorageArray('cartData',self.mainData, 'id', 999);
+				console.log(2322)
+				self.cartData = self.$Utils.getStorageArray('cartData');
+				console.log(self.cartData)
 			},
+			
 			carNumShow(){
 				const self = this;
 				self.is_carNumShow =!self.is_carNumShow;
+				self.mainData.isSelect = true;
+				self.mainData.count = 1;
+				self.$Utils.setStorageArray('cartData',self.mainData, 'id', 999);
 			},
 			
 			getMainData() {
@@ -360,18 +525,91 @@
 					thirdapp_id: 2,
 					id: self.id
 				};
-				const callback = (res) => {
+				postData.getAfter = {
+					relationProduct:{
+						tableName:'Product',
+						middleKey:'category_id',
+						key:'category_id',
+						searchItem:{
+							status:1,
+							id:['not in',self.id]
+						},
+						condition:'='
+					},
+					collect:{
+						
+						tableName:'Log',
+						middleKey:'id',
+						key:'relation_id',
+						searchItem:{
+							status:1,
+							type:2,
+							relation_table:'product',
+							user_type:0
+						},
+						condition:'='
+					},
+					collectMe:{
+						
+						tableName:'Log',
+						middleKey:'id',
+						key:'relation_id',
+						searchItem:{
+							status:1,
+							type:2,
+							relation_table:'product',
+							user_no:uni.getStorageSync('user_info').user_no,
+							status:['in',[1,-1]],
+						
+						},
+						condition:'='
+					}
+				};
+				 const callback = (res) => {
 					if (res.info.data.length > 0) {
 						self.mainData = res.info.data[0];
+						
 						const regex = new RegExp('<img', 'gi');
 						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;"`);
 					} else {
 						self.$Utils.showToast('没有更多了', 'none');
 					};
+					self.getMessageData();
 					console.log('self.mainData', self.mainData)
 					self.$Utils.finishFunc('getMainData');
 				};
 				self.$apis.productGet(postData, callback);
+			},
+			
+			getMessageData(isNew) {
+				const self = this;
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 5
+					}
+				};
+				const postData = {};
+				postData.tokenFuncName = 'getProjectToken';
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id: 2,
+					relation_id :self.id,
+					type:1,
+					relation_table:'product'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.messageData.push.apply(self.messageData, res.info.data);
+					}
+					console.log('23',res.info.total)
+					self.totalMessage = res.info.total;
+					console.log('self.messageData', self.messageData)
+				};
+				self.$apis.messageGet(postData, callback);
 			},
 		}
 	};

@@ -8,75 +8,38 @@
 		</view>
 		<view class="pdlr4">
 			<view class="proList proList-row">
-				<view class="item">
+				<view class="item" v-for="(item,index) in mainData">
 					<view class="flexRowBetween mglr4 pdtb10">
-						<view class="fs12 color9">交易时间：2018-08-30</view>
-						<view class="fs12 red">待确认</view>
+						<view class="fs12 color9">交易时间：{{item.create_time}}</view>
+						<view class="fs12 red" v-if="item.pay_status==0">待确认</view>
+						<view class="fs12 red" v-if="item.pay_status==1&&(item.transport_status==1||item.transport_status==0)">配送中</view>
+						<view class="fs12 red" v-if="item.pay_status==1&&item.transport_status==2">已完成</view>
+			
 					</view>
 					<view class="flexRowBetween">
 						<view class="pic">
-							<image src="../../static/images/home-img10.png" mode=""></image>
+							<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 						</view>
 						<view class="infor">
-							<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+							<view class="title avoidOverflow">{{item.title}}</view>
 							
 							<view class="flexRowBetween B-price">
-								<view class="price fs14">56.00</view>
-								<view class="flex">×1</view>
+								<view class="price fs14">{{item.price}}</view>
+								<view class="flex">×{{item.count}}</view>
 							</view>
 						</view>
 					</view>
 					<view class="pdlr4">
-						<view class="flexEnd pdtb15">共1件商品 合计:￥56</view>
-						<div class="underBtn flexEnd pdb15">
+						<view class="flexEnd pdtb15">共{{item.count}}件商品 合计:￥{{item.price}}</view>
+						<div class="underBtn flexEnd pdb15" v-if="item.pay_status==0">
 							<span class="Bbtn">确认兑换</span>
 						</div>
-					</view>
-				</view>
-				<view class="item">
-					<view class="flexRowBetween mglr4 pdtb10">
-						<view class="fs12 color9">交易时间：2018-08-30</view>
-						<view class="fs12 red">配送中</view>
-					</view>
-					<view class="flexRowBetween">
-						<view class="pic">
-							<image src="../../static/images/home-img10.png" mode=""></image>
-						</view>
-						<view class="infor">
-							<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
-							
-							<view class="flexRowBetween B-price">
-								<view class="price fs14">56.00</view>
-								<view class="flex">×1</view>
-							</view>
-						</view>
-					</view>
-					<view class="pdlr4">
-						<view class="flexEnd pdtb15">共1件商品 合计:￥56</view>
-						<view class="underBtn flexEnd pdb15">
+						<view class="underBtn flexEnd pdb15" v-if="item.pay_status==1&&item.transport_status==1">
 							<view class="Bbtn">确认收货</view>
 						</view>
 					</view>
 				</view>
-				<view class="item">
-					<view class="flexRowBetween mglr4 pdtb10">
-						<view class="fs12 color9">交易时间：2018-08-30</view>
-						<view class="fs12 red">已完成</view>
-					</view>
-					<view class="flexRowBetween">
-						<view class="pic">
-							<image src="../../static/images/home-img10.png" mode=""></image>
-						</view>
-						<view class="infor">
-							<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
-							
-							<view class="flexRowBetween B-price">
-								<view class="price fs14">56.00</view>
-								<view class="flex">×1</view>
-							</view>
-						</view>
-					</view>
-				</view>
+				
 			</view>
 		</view>
 		
@@ -91,28 +54,80 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				current:1
+				current:1,
+				searchItem:{
+					type:2
+				},
+				mainData:[]
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getMainData'], self);
+		
 		},
+		
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
 		methods: {
+			
 			change(current) {
 				const self = this;
 				if(current!=self.current){
-					self.current = current
+					self.current = current;
+					if(self.current==1){
+						delete self.searchItem.pay_status;
+						delete self.searchItem.transport_status;
+						delete self.searchItem.isremark;
+					}else if(self.current==2){
+						self.searchItem.pay_status=0
+					}else if(self.current==3){
+						self.searchItem.pay_status=1
+						self.searchItem.transport_status=1
+					}else if(self.current==4){
+						self.searchItem.pay_status=1
+						self.searchItem.transport_status=2
+					}
+					self.getMainData(true)
 				}
 			},
-			getMainData() {
+			
+			getMainData(isNew) {
 				const self = this;
-				console.log('852369')
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 10
+					}
+				};
 				const postData = {};
 				postData.tokenFuncName = 'getProjectToken';
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = self.$Utils.cloneForm(self.searchItem);
+				
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+						
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
 				self.$apis.orderGet(postData, callback);
-			}
+			},
 		}
 	};
 </script>

@@ -147,6 +147,9 @@
 					phone:self.registerData.phone,						
 					code:self.submitData.smsCode,
 				}; */
+				if(uni.getStorageSync('parent_no')){
+					postData.data.parent_no  = uni.getStorageSync('parent_no')
+				};
 				var newObject = self.$Utils.cloneForm(self.registerData);
 				delete newObject.code;
 				if (self.$Utils.checkComplete(newObject)) {						

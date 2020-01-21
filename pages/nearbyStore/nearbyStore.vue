@@ -14,7 +14,7 @@
 		<view class="storeList pdlr4">
 			<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index">
 				<view class="photo"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
-				<view class="infor">
+				<view class="infor" @click="choose(index)">
 					<view class="flexRowBetween">
 						<view class="title avoidOverflow">{{item.name}}</view>
 						<view class="fs12 color6">{{item.distance}}km</view>
@@ -73,6 +73,16 @@
 		},
 		
 		methods: {
+			
+			choose(index) {
+				const self = this;
+				self.choosedIndex = index;
+				uni.setStorageSync('chooseShopData', self.mainData[index]);
+				console.log('choosedIndex', self.choosedIndex);
+				uni.navigateBack({
+					delta:1
+				})
+			},
 			
 			getLocation() {
 				const self = this;

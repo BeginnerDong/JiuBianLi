@@ -8,12 +8,12 @@
 			</view>
 			
 			<view class="quanList center flexRowBetween pubColor">
-				<view class="item" v-for="(item,index) in quanList" :key="index">
+				<view class="item" v-for="(item,index) in mainData" :key="index">
 					<view class="title">先领券后购物</view>
 					<view class="infor">
-						<view class="price">{{item.price}}</view>
-						<view class="tt">·{{item.infor}}·</view>
-						<view class="text fs12">({{item.lable}})</view>
+						<view class="price">{{item.value}}</view>
+						<view class="tt">·满{{item.value}}元使用·</view>
+						<!-- <view class="text fs12">({{item.lable}})</view> -->
 					</view>
 				</view>
 			</view>
@@ -50,22 +50,43 @@
 					{price:'10',infor:'满100元使用',lable:'香烟除外'},
 					{price:'15',infor:'满200元使用',lable:'香烟除外'},
 					{price:'20',infor:'满300元使用',lable:'香烟除外'}
-				]
+				],
+				mainData:[]
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
 		methods: {
-			getMainData() {
+			
+			getMainData(isNew) {
 				const self = this;
-				console.log('852369')
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 10
+					}
+				};
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					thirdapp_id: 2,
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+					}
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.couponGet(postData, callback);
+			},
+			
 		}
 	};
 </script>

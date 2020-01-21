@@ -5,7 +5,12 @@
 			<view class="seachbox flexRowBetween whiteBj">
 				<view class="flex" >
 					<image class="mgr5" style="width: 20rpx; height: 26rpx;" src="../../static/images/home-select-icon.png" />
-					<span class="Gps fs13 avoidOverflow color9">西安市</span>
+					<picker :range="allCityData"
+					range-key="title" @change="changeCity">
+						<view class="Gps fs13 avoidOverflow">
+							{{allCityData[cityIndex]?allCityData[cityIndex].title:''}}
+						</view>
+					</picker>
 				</view>
 				<view class="flexRowBetween rr" style="width: 75%;" @click="Router.navigateTo({route:{path:'/pages/seach/seach'}})">
 					<button class="seachBtn" type="button"></button>
@@ -27,9 +32,20 @@
 				</view>
 			</view>
 			<view class="whiteBj category fs13 color9 flexRowBetween borderB1">
-				<view class="item flexCenter" @click="zongheShow">综合<image class="icon" style="width: 16rpx; height: 12rpx;" src="../../static/images/classification-icon11.png" mode=""></image></view>
-				<view class="item flexCenter">价格</view>
-				<view class="item flexCenter">推荐<image class="icon" style="width: 16rpx; height: 12rpx;" src="../../static/images/classification-icon12.png" mode=""></image></view>
+				<view class="item flexCenter" @click="zongheShow" :style="orderItem=='zonghe'?'color:#FF2121':''">综合
+					<image class="icon" style="width: 20rpx; height:20rpx;" 
+					:src="orderItem=='zonghe'?'../../static/images/classification-icon11.png':'../../static/images/classification-icon12.png'" mode=""></image>
+				</view>
+				<view class="item flexCenter" @click="orderChange('price')" :style="orderItem=='price'?'color:#FF2121':''">价格	
+					<image class="icon" style="width: 20rpx; height:20rpx;" 
+					:src="orderItem!='price'?'../../static/images/orderNone.png':(order.price&&orderType=='asc'?'../../static/images/orderTop.png':'../../static/images/orderBottom.png')" mode=""></image>
+				</view>
+				<view class="item flexCenter" @click="orderChange('listorder')" :style="orderItem=='listorder'?'color:#FF2121':''">
+					推荐
+				<image class="icon" style="width: 20rpx; height:20rpx;"
+				:src="orderItem!='listorder'?'../../static/images/orderNone.png':(order.price&&orderType=='asc'?'../../static/images/orderTop.png':'../../static/images/orderBottom.png')" mode=""></image>
+				</view>
+				
 				<view class="item flexCenter" @click="styleShow">
 					<image class="icon" style="width: 36rpx; height: 28rpx;" src="../../static/images/classification-icon13.png" mode=""></image>
 				</view>
@@ -59,7 +75,7 @@
 					<view class="infor">
 						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flex mgb10">
-							<view class="lab">组合装</view>
+							<view class="lab" v-if="item.combine_no!=''">组合装</view>
 						</view>
 						<view class="flexRowBetween">
 							<view class="price">{{item.price}}</view>
@@ -124,42 +140,6 @@
 				<image :src="item.bannerImg&&item.bannerImg[0]?item.bannerImg[0].url:''"></image>
 				<view class="tit">{{item.title}}</view>
 			</view>
-			<!-- <view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon1.png"></image>
-				<view class="tit">葡萄酒</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon2.png"></image>
-				<view class="tit">黄酒</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon3.png"></image>
-				<view class="tit">啤酒</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon4.png"></image>
-				<view class="tit">洋酒</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon5.png"></image>
-				<view class="tit">饮料</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon6.png"></image>
-				<view class="tit">酒具</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon7.png"></image>
-				<view class="tit">茶叶</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon8.png"></image>
-				<view class="tit">休闲</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-				<image src="../../static/images/classification-icon9.png"></image>
-				<view class="tit">生鲜</view>
-			</view> -->
 		</view>
 	
 		
@@ -183,7 +163,12 @@
 				is_moreClass:false,
 				is_styleShow:false,
 				mainData:[],
-				typeData:[]
+				typeData:[],
+				cityIndex:-1,
+				allCityData:[],
+				order:{},
+				orderItem:'zonghe',
+				orderType:'asc'
 			}
 		},
 		
@@ -191,7 +176,7 @@
 			const self = this;
 			self.id = options.id;
 			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
-			self.$Utils.loadAll(['getTypeData'], self);
+			//self.$Utils.loadAll(['getTypeData'], self);
 		},
 		
 		onReachBottom() {
@@ -203,14 +188,119 @@
 			};
 		},
 		
+		onShow() {
+			const self = this;
+			self.$Utils.loadAll(['getAllCity'], self);	
+			
+		},
+		
 		methods: {
+			
+			orderChange(item){
+				const self = this;
+				self.order = {};
+				self.orderItem = item;
+				if(self.orderType=='desc'){
+					self.orderType='asc'
+				}else{
+					self.orderType='desc'
+				};
+				self.order = {
+					[item]:self.orderType
+				};
+				
+				console.log('self.order',self.order)
+				self.getMainData(true)
+			},
+			
+			changeCity(e){
+				const self = this;
+				console.log('e',e);
+				var item = self.allCityData[e.detail.value];
+				uni.setStorageSync('city_id',item.id);
+				uni.setStorageSync('city',item.title);
+				self.$Utils.loadAll(['getAllCity'], self);	
+			},
+			
+			getAllCity() {
+				const self = this;
+				self.allCityData = [];
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					type:7
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						if(uni.getStorageSync('city_id')>0){
+							var findCity = self.$Utils.findItemInArray(res.info.data, 'title', uni.getStorageSync('city'));
+							self.cityData = findCity[1];
+							self.cityIndex = findCity[0];
+						
+							console.log('cityIndex',self.cityIndex)
+							self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+							self.$Utils.loadAll(['getTypeData'], self); 
+						}else{
+							self.$Utils.loadAll(['getLocation'], self);	
+						}
+						self.allCityData.push.apply(self.allCityData, res.info.data);
+						console.log('self.allCityData',self.allCityData)
+					}
+					self.$Utils.finishFunc('getAllCity');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			getLocation() {
+				const self = this;
+				const callback = (res) => {
+					if (res) {
+						console.log('res', res)
+						if (res.authSetting) {
+							console.log(232)
+							return
+						}
+						self.city = res.address_component.city
+						var findCity = self.$Utils.findItemInArray(self.allCityData, 'title', self.city)
+						console.log('findCity',findCity);
+						if (findCity) {
+							self.cityIndex = findCity[0];
+							self.cityData = findCity[1];
+							self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+							uni.setStorageSync('city_id',self.city_id);
+							uni.setStorageSync('city',self.cityData.title);
+							self.$Utils.loadAll(['getTypeData'], self);
+						} else {
+							uni.showModal({
+								title: '提示',
+								content: '当前城市未开通，是否切换为默认城市西安',
+								success: function(res) {
+									if (res.confirm) {
+										self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+										self.city = '西安市';
+										uni.setStorageSync('city_id',self.city_id);
+										uni.setStorageSync('city','西安市');
+										self.$Utils.loadAll(['getTypeData'], self);
+									} else if (res.cancel) {
+										console.log('用户点击取消');
+									}
+								}
+							});
+						};
+					};
+				};
+				self.$Utils.getLocation('reverseGeocoder', callback);
+			
+			},
 			
 			
 			getTypeData() {
 				const self = this;
+				self.typeData = [];
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					city_id:uni.getStorageSync('city_id')
 				};
 				postData.getBefore = {
 					caseData: {
@@ -239,6 +329,7 @@
 			
 			getMainData(isNew) {
 				const self = this;
+				self.mainData = [];
 				if (isNew) {
 					self.mainData = [];
 					self.paginate = {
@@ -253,7 +344,11 @@
 				postData.searchItem = {
 					thirdapp_id: 2,
 					category_id:self.currId,
-					type:1
+					type:1,
+					city_id:uni.getStorageSync('city_id')
+				};
+				if (JSON.stringify(self.order) != '{}') {
+					postData.order = self.$Utils.cloneForm(self.order);
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
@@ -277,9 +372,19 @@
 			
 			changeNum(num){
 				const self = this;
+				self.order = {};
 				if(num!=self.num){
-					self.num = num
-				}
+					self.num = num;
+					self.orderItem = 'zonghe';
+					if(self.num==1){
+						self.order = {}
+					}else if(self.num==2){
+						self.order = {
+							sale_count:'desc'
+						}
+					}
+					self.getMainData(true)
+				};
 				self.is_show = !self.is_show
 				self.is_zongheShow = !self.is_zongheShow
 			},

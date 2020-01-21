@@ -14,7 +14,7 @@
 						</view>
 					</view>
 					<view class="rr" style="justify-content:space-between;">
-						<view class="fs12 red">余额：0.00</view>
+						<view class="fs12 red">余额：{{userInfoData.balance}}</view>
 						<view>
 							<image class="seltIcon" :src="num==1?'../../static/images/shopping-icon3.png':'../../static/images/shopping-icon2.png'" mode=""></image>
 						</view>
@@ -40,10 +40,10 @@
 		<!-- 底部菜单按钮 -->
 		<view class="xqbotomBar flexRowBetween">
 			<view class="left flex mgl5">
-				<view class="fs16 price mgr5">856.00</view>
-				<view class="fs10 color9">已优惠￥110.00</view>
+				<view class="fs16 price mgr5">{{price}}</view>
+				<!-- <view class="fs10 color9">已优惠￥110.00</view> -->
 			</view>
-			<view class="payBtn fs16 white" @click="Router.redirectTo({route:{path:'/pages/orderConfirm-pay/orderConfirm-pay'}})">确认下单</view>
+			<view class="payBtn fs16 white" @click="goPay">确认下单</view>
 		</view>
 		<!-- 底部菜单按钮 end -->
 		
@@ -58,28 +58,125 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				num:1
+				num:2,
+				userInfoData:{},
+				pay:{},
+				price:0
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.orderId = options.id;
+			self.$Utils.loadAll(['getUserInfoData'], self);
 		},
+		
+		onShow() {
+			const self = this;
+			self.pay = uni.getStorageSync('payData');
+			self.price = self.pay.wxPay.price;
+			
+		},
+		
 		methods: {
+			
+			getUserInfoData() {
+				const self = this;
+				const postData = {};
+				postData.tokenFuncName = 'getProjectToken'
+				postData.searchItem = {
+					user_no: uni.getStorageSync('user_info').user_no
+				};
+				const callback = (res) => {
+					if (res.solely_code == 100000 && res.info.data[0]) {
+						self.userInfoData = res.info.data[0];
+					} else {
+						self.$Utils.showToast(res.msg, 'none')
+					};
+					self.$Utils.finishFunc('getUserInfoData');
+				};
+				self.$apis.userInfoGet(postData, callback);
+			},
+			
 			changeNum(num){
 				const self = this;
 				if(num!=self.num){
+					if(num==1){
+						if(parseFloat(self.pay.wxPay.price)<parseFloat(self.userInfoData.balance)){
+							self.pay.balance = {
+								price:self.pay.wxPay.price
+							};
+							delete self.pay.wxPay
+						}else{
+							self.$Utils.showToast('余额不足', 'none')
+						}
+					}else if(num==2){
+						self.pay.wxPay = {
+							price:self.pay.balance.price
+						};
+						delete self.pay.balance
+					}
 					self.num = num
 				}
 			},
-			getMainData() {
-				const self = this;
-				console.log('852369')
-				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+			
+			goPay() {
+				const self = this;	
+				
+				const postData = self.$Utils.cloneForm(self.pay)	
+				postData.tokenFuncName = 'getProjectToken',
+				postData.searchItem = {
+					id: self.orderId
+				};	
+				const callback = (res) => {
+					if (res.solely_code == 100000) {
+						uni.setStorageSync('canClick', true);
+						if (res.info) {
+							const payCallback = (payData) => {
+								console.log('payData', payData)
+								if (payData == 1) {
+									uni.showToast({
+										title: '支付成功',
+										duration: 1000,
+										success: function() {
+											
+										}
+									});
+									setTimeout(function() {
+										self.$Router.redirectTo({route:{path:'/pages/user_order/user_order'}})
+									}, 1000);
+								} else {
+									uni.setStorageSync('canClick', true);
+									uni.showToast({
+										title: '支付失败',
+										duration: 2000
+									});
+								};
+							};
+							self.$Utils.realPay(res.info, payCallback);
+						} else {
+							
+							uni.showToast({
+								title: '支付成功',
+								duration: 1000,
+								success: function() {
+									
+								}
+							});
+							setTimeout(function() {
+								self.$Router.redirectTo({route:{path:'/pages/user_order/user_order'}})
+							}, 1000);
+						};
+					} else {
+						uni.setStorageSync('canClick', true);
+						uni.showToast({
+							title: res.msg,
+							duration: 2000
+						});
+					};
+				};
+				self.$apis.pay(postData, callback);
+			},
 		}
 	};
 </script>

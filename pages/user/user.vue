@@ -9,10 +9,16 @@
 			
 			<view class="flex userPhoto pdtb20"  v-if="isLogin">
 				<view class="flex" @click="Router.navigateTo({route:{path:'/pages/user-infor/user-infor'}})">
-					<view class="pic mgr10"><image src="../../static/images/about-img.png" mode=""></image></view>
+					<view class="pic mgr10">
+						<image :src="mainData.mainImg&&mainData.mainImg[0]?mainData.mainImg[0].url:'../../static/images/about-img.png'" mode=""></image>
+					</view>
 					<view class="">
-						<view class="fs13 mgb5">15964167545</view>
-						<view class="lable fs11">新会员</view>
+						<view class="fs13 mgb5">{{mainData.name}}</view>
+						<view class="lable fs11" v-if="mainData.level==0">新会员</view>
+						<view class="lable fs11" v-if="mainData.level==1">普通</view>
+						<view class="lable fs11" v-if="mainData.level==2">银卡</view>
+						<view class="lable fs11" v-if="mainData.level==3">金卡</view>
+						<view class="lable fs11" v-if="mainData.level==4">钻石卡</view>
 					</view>
 				</view>
 			</view>
@@ -63,10 +69,10 @@
 					<image src="../../static/images/about-icon3.png"></image>
 					<view class="tit">领券中心</view>
 				</view>
-				<view class="item">
+				<button class="item" open-type="share">
 					<image src="../../static/images/about-icon4.png"></image>
 					<view class="tit">分享有礼</view>
-				</view>
+				</button>
 				<view class="item" @click="Router.navigateTo({route:{path:'/pages/user_feedback/user_feedback'}})">
 					<image src="../../static/images/about-icon5.png"></image>
 					<view class="tit">意见反馈</view>
@@ -166,7 +172,48 @@
 			}
 		},
 		
+		onShareAppMessage(ops) {
+			console.log(ops)
+			const self = this;
+			if(!uni.getStorageSync('user_info')){
+				uni.showModal({
+				    title: '提示',
+				    content: '您未登录，登录后再进行此操作',
+					showCancel:false,
+				    success: function (res) {
+				        if (res.confirm) {
+				            
+				        } else if (res.cancel) {
+				            console.log('用户点击取消');
+				        }
+				    }
+				});	
+				return
+			};
+			if (ops.from === 'button') {
+				return {
+					title: '酒便利',
+					path: '/pages/index/index?user_no='+uni.getStorageSync('user_info').user_no, //点击分享的图片进到哪一个页面
+					success: function(res) {
+						// 转发成功
+						console.log("转发成功:" + JSON.stringify(res));
+					},
+					fail: function(res) {
+						// 转发失败
+						console.log("转发失败:" + JSON.stringify(res));
+					}
+				}
+				console.log(ops.target)
+			}else{
+				
+			}
+			
+		},
+		
 		methods: {
+			
+			
+			
 			
 			getMainData() {
 				const self = this;
@@ -255,6 +302,14 @@
 @import "../../assets/style/proList.css";
 @import "../../assets/style/navbar.css";
 page{padding-bottom: 110rpx;}
+button{
+	background: none;
+	line-height: 1.5;
+	margin: 0;
+}
+button::after{
+	border: none;
+}
 .userHead{height: 562rpx;background: url(../../static/images/about-img0.png) 0 0 /100% 100%;}
 .userHead .loginBtn{line-height: 100rpx;}
 .userHead .loginBtn .xian{margin: 0 30rpx;height: 30rpx;width: 1rpx; background: #F5F5F5;}

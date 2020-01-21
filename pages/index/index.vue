@@ -1,11 +1,15 @@
 <template>
 	<view>
-		<view class="bjPic" style="background: url(../../static/images/home-img0.png) no-repeat 0 0/100% 456rpx;">
+		<view class="bjPic" :style="'background: url('+allCityData[cityIndex].mainImg[0].url+') no-repeat 0 0/100% 456rpx;'">
 			<!-- 搜索 -->
 			<view class="seachbox flexRowBetween">
 				<view class="flex" >
 					<image class="mgr5 Licon" src="../../static/images/home-icon.png" />
-					<view class="Gps fs13 avoidOverflow white">西安市</view>
+					<picker :range="allCityData" 
+					range-key="title" @change="changeCity">
+						<view class="Gps fs13 avoidOverflow white">{{allCityData[cityIndex].title?allCityData[cityIndex].title:''}}</view>
+					</picker>
+					
 				</view>
 				<view class="flexRowBetween rr" style="width: 75%;" @click="Router.navigateTo({route:{path:'/pages/seach/seach'}})">
 					<button class="seachBtn" type="button"></button>
@@ -46,26 +50,6 @@
 					<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
 					<view class="tit">{{item.title}}</view>
 				</view>
-				<!-- <view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-					<image src="../../static/images/home-icon3.png"></image>
-					<view class="tit">葡萄酒</view>
-				</view>
-				<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-					<image src="../../static/images/home-icon4.png"></image>
-					<view class="tit">啤酒</view>
-				</view>
-				<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-					<image src="../../static/images/home-icon5.png"></image>
-					<view class="tit">洋酒</view>
-				</view>
-				<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-					<image src="../../static/images/home-icon6.png"></image>
-					<view class="tit">黄酒</view>
-				</view>
-				<view class="item" @click="Router.navigateTo({route:{path:'/pages/classification/classification'}})">
-					<image src="../../static/images/home-icon7.png"></image>
-					<view class="tit">饮料</view>
-				</view> -->
 				<view class="item" @click="Router.navigateTo({route:{path:'/pages/integralShop/integralShop'}})">
 					<image src="../../static/images/home-icon8.png"></image>
 					<view class="tit">积分商城</view>
@@ -103,50 +87,6 @@
 					</view>
 				</view>
 			</view>
-			
-			<!--  -->
-			<!-- <view class="flexRowBetween ind_probox1 pdt20 pdb15 white">
-				<view class="Lbox flexColumn" @click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail'}})">
-					<image class="FXLabel" src="../../static/images/home-img3.png" mode=""></image>
-					<view class="pic"><image src="../../static/images/home-img2.png" mode=""></image></view>
-					<view class="pr flexCenter">
-						<text class="name">发现好物</text>
-						<view class="xian"></view>
-					</view>
-					<view class="fs10">开启品质新生活</view>
-					<view class="goBtn center mgt10">点击进入&gt;</view>
-				</view>
-				<view class="Rbox">
-					<view class="item flexRowBetween mgb5 radius10" @click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail'}})">
-						<image class="FXLabel" src="../../static/images/home-img3.png" mode=""></image>
-						<view class="left">
-							<view class="pr flex">
-								<text class="name avoidOverflow">全家人都爱喝</text>
-								<view class="xian"></view>
-							</view>
-							<view class="fs10 avoidOverflow">低至3元起 多买更优惠</view>
-							<view class="goBtn center mgt10">点击进入&gt;</view>
-						</view>
-						<view class="right flex">
-							<view class="pic"><image src="../../static/images/home-img2.png" mode=""></image></view>
-						</view>
-					</view>
-					<view class="item flexRowBetween radius10" @click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail'}})">
-						<image class="FXLabel" src="../../static/images/home-img3.png" mode=""></image>
-						<view class="left">
-							<view class="pr flex">
-								<text class="name avoidOverflow">全家人都爱喝</text>
-								<view class="xian"></view>
-							</view>
-							<view class="fs10 avoidOverflow">低至3元起 多买更优惠</view>
-							<view class="goBtn center mgt10">点击进入&gt;</view>
-						</view>
-						<view class="right flex">
-							<view class="pic"><image src="../../static/images/home-img2.png" mode=""></image></view>
-						</view>
-					</view>
-				</view>
-			</view> -->
 		</view>
 		
 		<view class="f5H5"></view>
@@ -346,22 +286,152 @@
 				memberData:{},
 				couponData:[],
 				productData:[],
-				bannerData:[]
+				bannerData:[],
+				city:'',
+				allCityData:[],
+				cityIndex:-1
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			self.$Utils.loadAll(['getTypeData','getLabelOneData','getLabelTwoData','getLabelThreeData','getProductData','getMemberData','getCouponData','getBannerData'], self);	
+			if(options.user_no){
+				uni.setStorageSync('parent_no',options.user_no)
+			};
+			self.$Utils.loadAll(['getMemberData','getCouponData'], self);	
+		},
+		
+		onShow() {
+			const self = this;
+			self.$Utils.loadAll(['getAllCity'], self);	
+			
 		},
 		
 		methods: {
 			
-			getBannerData() {
+			changeCity(e){
+				const self = this;
+				console.log('e',e);
+				var item = self.allCityData[e.detail.value];
+				uni.setStorageSync('city_id',item.id);
+				uni.setStorageSync('city',item.title);
+				self.$Utils.loadAll(['getAllCity'], self);	
+			},
+			
+			getAllCity() {
+				const self = this;
+				self.allCityData = [];
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					type:7
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.allCityData.push.apply(self.allCityData, res.info.data)
+						if(uni.getStorageSync('city_id')>0){
+							var findCity = self.$Utils.findItemInArray(self.allCityData, 'title', uni.getStorageSync('city'));
+							self.cityData = findCity[1];
+							self.cityIndex = findCity[0];
+							console.log('cityIndex',self.cityIndex)
+							self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+							self.$Utils.loadAll(['getBannerData','getTypeData','getLabelOneData','getLabelTwoData','getLabelThreeData','getProductData'], self); 
+						}else{
+							self.$Utils.loadAll(['getLocation'], self);	
+						}
+					}
+					self.$Utils.finishFunc('getAllCity');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			getLocation() {
+				const self = this;
+				const callback = (res) => {
+					if (res) {
+						console.log('res', res)
+						if (res.authSetting) {
+							console.log(232)
+							return
+						}
+						self.city = res.address_component.city
+						var findCity = self.$Utils.findItemInArray(self.allCityData, 'title', self.city)
+						console.log('findCity',findCity);
+						if (findCity) {
+							self.cityIndex = findCity[0];
+							self.cityData = findCity[1];
+							self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+							uni.setStorageSync('city_id',self.city_id);
+							uni.setStorageSync('city',self.cityData.title);
+							self.$Utils.loadAll(['getBannerData','getTypeData','getLabelOneData','getLabelTwoData','getLabelThreeData','getProductData'], self);
+						} else {
+							uni.showModal({
+								title: '提示',
+								content: '当前城市未开通，是否切换为默认城市西安',
+								success: function(res) {
+									if (res.confirm) {
+										self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+										self.city = '西安市';
+										uni.setStorageSync('city_id',self.city_id);
+										uni.setStorageSync('city','西安市');
+										self.$Utils.loadAll(['getTypeData','getLabelOneData','getLabelTwoData','getLabelThreeData','getProductData'], self);
+									} else if (res.cancel) {
+										console.log('用户点击取消');
+									}
+								}
+							});
+						};
+					};
+				};
+				self.$Utils.getLocation('reverseGeocoder', callback);
+			
+			},
+			
+			getCityData() {
 				const self = this;
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					
+					title: self.city
+				};
+				const callback = (res) => {
+					self.$Utils.finishFunc('getLocation');
+					if (res.info.data.length > 0) {
+						self.cityData = res.info.data[0];
+						self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+						uni.setStorageSync('city_id',self.city_id);
+						uni.setStorageSync('city',self.cityData.title);
+						self.$Utils.loadAll(['getBannerData','getTypeData','getLabelOneData','getLabelTwoData','getLabelThreeData','getProductData'], self);	
+					} else {
+						uni.showModal({
+							title: '提示',
+							content: '当前城市未开通，是否切换为默认城市西安',
+							success: function(res) {
+								if (res.confirm) {
+									self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+									self.city = '西安市';
+									uni.setStorageSync('city_id',self.city_id);
+									uni.setStorageSync('city','西安市');
+									self.$Utils.loadAll(['getTypeData','getLabelOneData','getLabelTwoData','getLabelThreeData','getProductData'], self);
+								} else if (res.cancel) {
+									console.log('用户点击取消');
+								}
+							}
+						});
+					}
+			
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			getBannerData() {
+				const self = this;
+				self.bannerData = [];
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					city_id:self.city_id
 				};
 				postData.getBefore = {
 					caseData: {
@@ -406,9 +476,11 @@
 			
 			getTypeData() {
 				const self = this;
+				self.typeData = [];
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					city_id:self.city_id
 				};
 				postData.getBefore = {
 					caseData: {
@@ -437,9 +509,11 @@
 			
 			getLabelOneData() {
 				const self = this;
+				self.labelOneData = [];
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					city_id:self.city_id
 				};
 				postData.getBefore = {
 					caseData: {
@@ -467,9 +541,11 @@
 			
 			getLabelTwoData() {
 				const self = this;
+				self.labelTwoData = [];
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					city_id:self.city_id
 				};
 				postData.getBefore = {
 					caseData: {
@@ -497,9 +573,11 @@
 			
 			getLabelThreeData() {
 				const self = this;
+				self.labelThreeData = [];
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					city_id:self.city_id
 				};
 				postData.getBefore = {
 					caseData: {
@@ -530,6 +608,7 @@
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					
 				};
 				
 				const callback = (res) => {
@@ -544,9 +623,11 @@
 			
 			getProductData() {
 				const self = this;
+				self.productData = [];
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					city_id:self.city_id,
 					type:1
 				};
 				postData.paginate = {
