@@ -43,11 +43,11 @@
 					<view class="infor">
 						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flex mgb10">
-							<view class="lab">组合装</view>
+							<view class="lab" v-if="item.combine_no!=''">组合装</view>
 						</view>
 						<view class="flexRowBetween">
 							<view class="price">{{item.price}}</view>
-							<view class="adBtn">+</view>
+							<view class="adBtn" @click="addCar(index)">+</view>
 						</view>
 					</view>
 				</view>
@@ -62,11 +62,11 @@
 					<view class="infor">
 						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flex mgb10">
-							<view class="lab">组合装</view>
+							<view class="lab" v-if="item.combine_no!=''">组合装</view>
 						</view>
 						<view class="flexRowBetween B-price">
 							<view class="price">{{item.price}}</view>
-							<view class="adBtn">+</view>
+							<view class="adBtn" @click="addCar(index)">+</view>
 						</view>
 					</view>
 				</view>
@@ -110,6 +110,27 @@
 		},
 		
 		methods: {
+			
+			addCar(index){
+				const self = this;
+				var array = self.$Utils.getStorageArray('cartData');
+				for (var i = 0; i < array.length; i++) {
+					if(array[i].id == self.id){
+						var target = array[i]
+					}
+				}
+				if(target){
+					target.count  = target.count + 1;
+					
+				}else{
+					var target = self.mainData[index];
+					target.count = 1;
+					
+					target.isSelect = true;
+				}
+				self.$Utils.setStorageArray('cartData', target, 'id', 999);
+				self.$Utils.showToast('已加入购物车', 'none', 1000);
+			},
 			
 			search(){
 				const self = this;

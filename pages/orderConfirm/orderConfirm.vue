@@ -69,7 +69,8 @@
 					<view class="item flexRowBetween">
 						<view class="ll fs13 ftw">红包</view>
 						<view class="rr fs12">
-							<view class="color9">暂无红包可用</view>
+							<view style="color:#ff2121" v-if="pay.bonus&&pay.bonus.price>0">红包抵扣{{pay.bonus.price}}元</view>
+							<view class="color9" v-else>暂无红包可用</view>
 							<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image>
 						</view>
 					</view>
@@ -181,12 +182,12 @@
 				},
 				submitData:{
 					level:1,
-					parent:1,
 					receipt:0,
 					time_type:1,
 					temperature:0,
 					passage1:'',
-					book_time:''
+					book_time:'',
+					
 				},
 				couponData:[],
 				chooseCoupon:[],
@@ -201,6 +202,7 @@
 			uni.removeStorageSync('passage1');
 			uni.removeStorageSync('receiptData');
 			self.mainData = self.$Utils.getStorageArray('orderList')[0];
+			self.submitData.city_id = uni.getStorageSync('city_id');
 			console.log(self.mainData)
 			self.$Utils.loadAll(['getUserInfoData','getUserCouponData'], self);
 		},
@@ -299,7 +301,8 @@
 				postData.tokenFuncName = 'getProjectToken';
 				postData.searchItem = {
 					use_step: 1,
-					type: ['in', [1, 2]]
+					type: ['in', [1, 2]],
+					invalid_time:['>',now]
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
@@ -355,12 +358,19 @@
 				const self = this;
 				self.totalPrice = 0;
 				self.bonusPrice = 0;
+				var bonusLimit = parseFloat(uni.getStorageSync('user_info').thirdApp.custom_rule.bonus_limit);
 				self.couponTotalPrice = self.$Utils.addItemInArray(self.pay.coupon, 'price');
-				self.bonusPrice = self.userInfoData.bonus;
-				for (var i = 0; i < self.mainData.length; i++) {
 				
+				if(parseFloat(self.userInfoData.bonus)>0){
+					if(parseFloat(self.userInfoData.bonus)<bonusLimit){
+						self.bonusPrice = self.userInfoData.bonus;
+					}else{
+						self.bonusPrice = bonusLimit;
+					};
+				}
+				
+				for (var i = 0; i < self.mainData.length; i++) {
 					self.totalPrice += self.mainData[i].product.price * self.mainData[i].count;
-					
 				};
 				console.log('self.totalPrice',self.totalPrice)
 				console.log('self.couponTotalPrice',self.couponTotalPrice)
@@ -384,19 +394,23 @@
 			
 			addOrder() {
 				const self = this;	
-				if(self.orderId){
+				/* if(self.orderId){
 					uni.setStorageSync('payData',self.pay)
 					self.Router.navigateTo({route:{path:'/pages/orderConfirm-pay/orderConfirm-pay?id='+self.orderId}})
-				};
+				}; */
 				const postData = {}; 
 				postData.orderList = self.$Utils.cloneForm(self.mainData);
 				postData.data = self.$Utils.cloneForm(self.submitData);
+				postData.parent = 1;
 				postData.tokenFuncName = 'getProjectToken';
 				const callback = (res) => {
 					if (res && res.solely_code == 100000) {
 						self.orderId = res.info.id;
 						uni.setStorageSync('payData',self.pay)
-						self.Router.navigateTo({route:{path:'/pages/orderConfirm-pay/orderConfirm-pay?id='+self.orderId}})
+						self.Router.redirectTo({route:{path:'/pages/orderConfirm-pay/orderConfirm-pay?id='+self.orderId}})
+						for (var i = 0; i < self.mainData.length; i++) {
+							self.$Utils.delStorageArray('cartData', self.mainData[i], 'id');
+						}
 					} else {		
 						uni.setStorageSync('canClick', true);
 						uni.showToast({

@@ -123,6 +123,17 @@
 					}
 				};
 				const postData = {};
+				postData.getBefore = {
+					shop: {
+						tableName: 'User',
+						searchItem: {
+							city_id: ['=', [uni.getStorageSync('city_id')]],
+						},
+						middleKey: 'user_no',
+						key: 'user_no',
+						condition: 'in',
+					},
+				};
 				postData.tokenFuncName = 'getProjectToken';
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = self.$Utils.cloneForm(self.searchItem)

@@ -15,7 +15,9 @@
 					</view>
 				</view>
 				<view class="rr flexCenter">
-					<view class="lq-btn" @click="submit(index)">领取</view>
+					<view class="lq-btn" @click="submit(index)" v-if="item.hasPick&&item.hasPick.length<item.limit">领取</view>
+					<view class="lq-btn" @click="submit(index)" style="color: #666;border: 1px solid #666;" 
+					v-if="item.hasPick&&item.hasPick.length==item.limit">已领取</view>
 				</view>
 			</view>
 		</view>
@@ -109,6 +111,18 @@
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = {
 					thirdapp_id: 2,
+				};
+				postData.getAfter = {
+					hasPick:{
+						token:uni.getStorageSync('user_token'),
+						tableName:'UserCoupon',
+						middleKey:'coupon_no',
+						key:'coupon_no',
+						searchItem:{
+							status:1,
+						},
+						condition:'='
+					},
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {

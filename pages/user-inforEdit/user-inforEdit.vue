@@ -108,6 +108,7 @@
 						self.submitData.name = self.mainData.name;
 						self.submitData.birth = self.mainData.birth;
 						self.submitData.gender = self.mainData.gender;
+						self.submitData.age = self.mainData.age;
 						self.birth = self.$Utils.timeto(self.submitData.birth*1000,'ymd')
 					}
 					console.log('self.mainData', self.mainData)

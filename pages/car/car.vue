@@ -7,6 +7,7 @@
 					<view class="item_selBtn flexCenter" @click="choose(index)">
 						<image class="seltIcon" :src="item.isSelect?'../../static/images/shopping-icon3.png':'../../static/images/shopping-icon2.png'"
 						 mode=""></image>
+						
 					</view>
 					<view class="R_cont flexRowBetween">
 						<view class="pic">
@@ -32,7 +33,7 @@
 				<image class="mgr5" style="width: 37rpx;height: 33rpx;" src="../../static/images/shopping-icon4.png" mode=""></image>
 				<view>您有可领取的福利，选中后随正常订单配送</view>
 			</view>
-			<view class="proList proList-row">
+			<view class="proList proList-row" v-if="memberData.length>0&&!hasBuyMember">
 				<view class="item flexRowBetween" v-for="(item,index) in memberData" :key="index">
 					<view class="item_selBtn flexCenter" @click="chooseMember(index)">
 						<image class="seltIcon" :src="item.isSelect?'../../static/images/shopping-icon3.png':'../../static/images/shopping-icon2.png'"
@@ -92,10 +93,10 @@
 		<view class="xqbotomBar flexRowBetween borderB1" style="bottom: 110rpx;">
 			<view class="left flexRowBetween" style="width: 66%;">
 				<view class="flex color6">
-					<image class="seltIcon mgr5" :src="isChooseAll?'../../static/images/shopping-icon3.png':'../../static/images/shopping-icon3.png'"
+					<image class="seltIcon mgr5" :src="isChooseAll?'../../static/images/shopping-icon3.png':'../../static/images/shopping-icon2.png'"
 					 mode=""></image>
-					<view>全选</view>
-					<view class="color6 fs12 mgl10" style="line-height: 36rpx;padding: 0 10rpx;background: #d1d1d1;border-radius: 6rpx;">删除</view>
+					<view @click="chooseAll">全选</view>
+					<view @click="deleteChoose" class="color6 fs12 mgl10" style="line-height: 36rpx;padding: 0 10rpx;background: #d1d1d1;border-radius: 6rpx;">删除</view>
 				</view>
 				<view class="fs15 mgr5 flexEnd price">{{totalPrice}}</view>
 			</view>
@@ -168,6 +169,7 @@
 
 		onLoad(options) {
 			const self = this;
+			console.log('self.mainData',self.mainData)
 			if(!uni.getStorageSync('user_token')){
 				self.Router.redirectTo({route:{path:'/pages/user/user'}});
 				return
@@ -179,19 +181,46 @@
 			const self = this;
 			/* if(self.$Utils.getStorageArray('orderList')){
 				self.$Utils.delStorageArray('orderList');
-			};
-			 */
+			}; */
+			self.orderList = [];
 			self.quota = parseFloat(uni.getStorageSync('user_info').thirdApp.custom_rule.quota);
 			self.mainData = self.$Utils.getStorageArray('cartData');
 			self.checkChooseAll();
 			self.countTotalPrice();
+			
 		},
 
 		methods: {
 			
+			deleteChoose() {
+				const self = this;
+				uni.showModal({
+				    title: '提示',
+				    content: '确定要删除所选商品吗？',
+					
+				    success: function (res) {
+				        if (res.confirm) {
+				            for (var i = 0; i < self.mainData.length; i++) {
+				            	if (self.mainData[i].isSelect) {
+				            		self.$Utils.delStorageArray('cartData', self.mainData[i], 'id');
+				            	}
+				            };
+				            self.mainData = self.$Utils.getStorageArray('cartData');
+				            console.log('2323',self.mainData)
+				            self.checkChooseAll();
+				            self.countTotalPrice();
+				        } else if (res.cancel) {
+				            console.log('用户点击取消');
+				        }
+				    }
+				});	
+			},
+			
 			goBuy(){
 				const self = this;
-				var newArray = self.mainData.concat(self.memberData, self.addData);
+				
+				var newArray = [];
+				 newArray = newArray.concat(self.memberData, self.addData,self.mainData);
 				console.log('newArray', newArray)
 				for (var i = 0; i < newArray.length; i++) {
 					if (newArray[i].isSelect) {
@@ -200,6 +229,10 @@
 							type:newArray[i].type,product:newArray[i]},
 						);
 					};
+				};
+				if (self.orderList.length == 0) {
+					self.$Utils.showToast('未选择商品', 'none', 1000);
+					return;
 				};
 				self.$Utils.setStorageArray('orderList', self.orderList);
 				self.Router.navigateTo({route:{path:'/pages/orderConfirm/orderConfirm'}})
@@ -214,15 +247,19 @@
 					};
 				};
 				self.isChooseAll = isChooseAll;
+				console.log('checkChooseAll',self.mainData)
 			},
 
 			chooseAll() {
 				const self = this;
 				self.isChooseAll = !self.isChooseAll;
+				
+				console.log(self.isChooseAll)
 				for (var i = 0; i < self.mainData.length; i++) {
 					self.mainData[i].isSelect = self.isChooseAll;
 					self.$Utils.setStorageArray('cartData', self.mainData[i], 'id', 999);
 				};
+				console.log(self.mainData)
 				self.countTotalPrice();
 			},
 
@@ -367,7 +404,8 @@
 				const self = this;
 				self.totalPrice = 0;
 				self.totalCount = 0;
-				var newArray = self.mainData.concat(self.memberData, self.addData);
+				var newArray = [];
+				 newArray = newArray.concat(self.memberData, self.addData,self.mainData);
 				console.log('newArray', newArray)
 				for (var i = 0; i < newArray.length; i++) {
 					if (newArray[i].isSelect) {
@@ -375,9 +413,9 @@
 						self.totalCount += newArray[i].count
 					};
 				};
+				self.totalPrice = parseFloat(self.totalPrice).toFixed(2);
+				console.log('countTotalPrice',self.mainData)
 			},
-
-
 		}
 	};
 </script>

@@ -7,8 +7,8 @@
 				></view>注册</view>
 			</view>
 			
-			<view class="flex userPhoto pdtb20"  v-if="isLogin">
-				<view class="flex" @click="Router.navigateTo({route:{path:'/pages/user-infor/user-infor'}})">
+			<view class="flex userPhoto pdtb20" v-if="isLogin">
+				<view class="flex"  style="width: 100%;" @click="Router.navigateTo({route:{path:'/pages/user-infor/user-infor'}})">
 					<view class="pic mgr10">
 						<image :src="mainData.mainImg&&mainData.mainImg[0]?mainData.mainImg[0].url:'../../static/images/about-img.png'" mode=""></image>
 					</view>
@@ -19,6 +19,9 @@
 						<view class="lable fs11" v-if="mainData.level==2">银卡</view>
 						<view class="lable fs11" v-if="mainData.level==3">金卡</view>
 						<view class="lable fs11" v-if="mainData.level==4">钻石卡</view>
+					</view>
+					<view @click="loginOff" class="lable fs11" style="justify-content: end;margin-left: 50%;font-size: 11px;">
+						退出登录
 					</view>
 				</view>
 			</view>
@@ -47,7 +50,7 @@
 					<view class="L-icon">
 						<image src="../../static/images/about-img1.png" mode=""></image>
 					</view>
-					<view class="fs12 color9 mgl10 text avoidOverflow">暂无订单，请选购商品</view>
+					<view class="fs12 color9 mgl10 text avoidOverflow" v-if="isLogin&&mainData.order&&mainData.order.length==0">暂无订单，请选购商品</view>
 				</view>
 				<view class="fs12 flexEnd color2" @click="Router.navigateTo({route:{path:'/pages/user_order/user_order'}})">全部订单<image class="arrowR" src="../../static/images/about-icon.png" mode=""></image></view>
 			</view>
@@ -69,7 +72,11 @@
 					<image src="../../static/images/about-icon3.png"></image>
 					<view class="tit">领券中心</view>
 				</view>
-				<button class="item" open-type="share">
+				<button class="item" open-type="share" v-if="isLogin">
+					<image src="../../static/images/about-icon4.png"></image>
+					<view class="tit">分享有礼</view>
+				</button>
+				<button class="item" v-if="!isLogin" @click="show">
 					<image src="../../static/images/about-icon4.png"></image>
 					<view class="tit">分享有礼</view>
 				</button>
@@ -159,6 +166,8 @@
 			}
 		},
 		
+		
+		
 		onLoad(options) {
 			const self = this;
 			self.$Utils.loadAll(['getLabelData','getProductData'], self);
@@ -212,11 +221,33 @@
 		
 		methods: {
 			
+			loginOff(){
+				uni.removeStorageSync('user_token');
+				uni.removeStorageSync('user_info');
+				self.isLogin = false;
+			},
 			
+			show(){
+				const self = this;
+				uni.showModal({
+				    title: '提示',
+				    content: '您未登录，登录后再进行此操作',
+					showCancel:false,
+				    success: function (res) {
+				        if (res.confirm) {
+				            
+				        } else if (res.cancel) {
+				            console.log('用户点击取消');
+				        }
+				    }
+				});	
+				return
+			},
 			
 			
 			getMainData() {
 				const self = this;
+				var now =  (new Date()).getTime();
 				const postData = {};
 				postData.tokenFuncName = 'getProjectToken';
 				postData.searchItem = {
@@ -228,7 +259,19 @@
 						middleKey:'user_no',
 						key:'user_no',
 						searchItem:{
-							status:1
+							status:1,
+							use_step:1,
+							invalid_time:['>',now]
+						},
+						condition:'='
+					},
+					order:{
+						tableName:'Order',
+						middleKey:'user_no',
+						key:'user_no',
+						searchItem:{
+							status:1,
+							level:1
 						},
 						condition:'='
 					}

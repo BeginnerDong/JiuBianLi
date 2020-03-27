@@ -17,7 +17,7 @@
 						<view class="fs12 red" v-if="item.pay_status==1&&item.transport_status==2">已完成</view>
 						<view class="fs12 red" v-if="item.isremark==1">已评价</view>
 					</view>
-					<view class="flexRowBetween" v-for="(c_item,c_index) in item.child">
+					<view class="flexRowBetween" v-if="item.child" v-for="(c_item,c_index) in item.child">
 						<view class="pic">
 							<image :src="c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product
 							&&c_item.orderItem[0].snap_product.mainImg&&c_item.orderItem[0].snap_product.mainImg[0]?c_item.orderItem[0].snap_product.mainImg[0].url:''" mode=""></image>
@@ -31,15 +31,15 @@
 							</view>
 						</view>
 					</view>
-					<view class="mglr4 pdtb15" v-if="item.isremark==1">
+					<!-- <view class="mglr4 pdtb15" v-if="item.isremark==1">
 						<view class="pdlr4 pdt10 pdb10 f5bj radius8 fs12">科就回归考虑到双方各烘干机撒联合国何健飞道快乐十分个分类山沟加工费是发的是</view>
-					</view>
+					</view> -->
 					<view class="pdlr4">
 						<view class="flexEnd pdtb15">共{{item.totalCount}}件商品 合计:￥{{item.price}}</view>
 						<div class="underBtn flexEnd pdb15">
-							<span class="Bbtn" v-if="item.pay_status==0">去支付</span>
-							<view class="Bbtn" v-if="item.pay_status==1&&item.transport_status==2&&item.isremark==0"
-							@click="Router.navigateTo({route:{path:'/pages/user_orderPingJia/user_orderPingJia'}})">去评价</view>
+							<span class="Bbtn" v-if="item.pay_status==0" @click="goPay(index)">去支付</span>
+							<view class="Bbtn" v-if="item.pay_status==1&&item.transport_status==2&&item.isremark==0" :data-id="item.id"
+							@click="Router.navigateTo({route:{path:'/pages/user_orderPingJia/user_orderPingJia?id='+$event.currentTarget.dataset.id}})">去评价</view>
 						</div>
 					</view>
 				</view>
@@ -95,12 +95,16 @@
 						delete self.searchItem.isremark;
 					}else if(self.current==2){
 						self.searchItem.pay_status=0
+						self.searchItem.transport_status=0
+						delete self.searchItem.isremark
 					}else if(self.current==3){
 						self.searchItem.pay_status=1
-						self.searchItem.transport_status=1
+						self.searchItem.transport_status=['in',[0,1]]
+						delete self.searchItem.isremark
 					}else if(self.current==4){
 						self.searchItem.pay_status=1
 						self.searchItem.transport_status=2
+						delete self.searchItem.isremark
 					}else if(self.current==5){
 						self.searchItem.pay_status=1
 						self.searchItem.isremark=1
@@ -142,6 +146,15 @@
 							status:1
 						},
 						condition:'='
+					},
+					payLog:{
+						tableName:'PayLog',
+						middleKey:'pay_no',
+						key:'pay_no',
+						searchItem:{
+							status:1
+						},
+						condition:'='
 					}
 				};
 				const callback = (res) => {
@@ -149,15 +162,58 @@
 						self.mainData.push.apply(self.mainData, res.info.data);
 						for (var i = 0; i < self.mainData.length; i++) {
 							self.mainData[i].totalCount = 0;
-							for (var j = 0; j < self.mainData[i].child.length; j++) {
-								self.mainData[i].totalCount += self.mainData[i].child[j].count
+							if(self.mainData[i].child){
+								for (var j = 0; j < self.mainData[i].child.length; j++) {
+									self.mainData[i].totalCount += self.mainData[i].child[j].count
+								}
 							}
+							
 						}
 					}
 					console.log('self.mainData', self.mainData)
 					self.$Utils.finishFunc('getMainData');
 				};
 				self.$apis.orderGet(postData, callback);
+			},
+			
+			goPay(index){
+				const self = this;
+				console.log
+				self.orderId = self.mainData[index].id;
+				
+				if(self.mainData[index].payLog[0]){
+					const payCallback = (payData) => {
+						console.log('payData', payData)
+						if (payData == 1) {
+							uni.showToast({
+								title: '支付成功',
+								duration: 1000,
+								success: function() {
+									
+								}
+							});
+							setTimeout(function() {
+								self.getMainData(true)
+							}, 1000);
+						} else {
+							uni.setStorageSync('canClick', true);
+							uni.showToast({
+								title: '支付失败',
+								duration: 2000
+							});
+						};
+					};
+					self.$Utils.realPay(self.mainData[index].payLog[0].wx_prepay_info, payCallback);
+				}else{
+					self.pay={
+						wxPay:{
+							price:parseFloat(self.mainData[index].price)
+						}
+					};
+					self.orderId = self.mainData[index].id;
+					uni.setStorageSync('payData',self.pay)
+					self.Router.redirectTo({route:{path:'/pages/orderConfirm-pay/orderConfirm-pay?id='+self.orderId}})
+				}
 			},
 		}
 	};

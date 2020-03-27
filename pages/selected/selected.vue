@@ -5,7 +5,12 @@
 		<view class="seachbox flexRowBetween whiteBj">
 			<view class="flex" >
 				<image class="mgr5 Licon" style="width: 20rpx; height: 26rpx;" src="../../static/images/home-select-icon.png" />
-				<view class="Gps fs13 avoidOverflow color6">印象长安</view>
+				<picker :range="allCityData"
+				range-key="title" @change="changeCity">
+					<view class="Gps fs13 avoidOverflow">
+						{{allCityData[cityIndex]?allCityData[cityIndex].title:''}}
+					</view>
+				</picker>
 			</view>
 			<view class="flexRowBetween rr" style="width: 75%;" @click="Router.navigateTo({route:{path:'/pages/seach/seach'}})">
 				<button class="seachBtn" type="button"></button>
@@ -112,7 +117,7 @@
 		onLoad(options) {
 			const self = this;
 			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
-			self.$Utils.loadAll(['getTypeData'], self);
+			self.$Utils.loadAll(['getAllCity'], self);
 		},
 		
 		onReachBottom() {
@@ -126,11 +131,92 @@
 		
 		methods: {
 			
+			changeCity(e){
+				const self = this;
+				console.log('e',e);
+				var item = self.allCityData[e.detail.value];
+				uni.setStorageSync('city_id',item.id);
+				uni.setStorageSync('city',item.title);
+				self.$Utils.loadAll(['getAllCity'], self);	
+			},
+			
+			getAllCity() {
+				const self = this;
+				self.allCityData = [];
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					type:7
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						if(uni.getStorageSync('city_id')>0){
+							var findCity = self.$Utils.findItemInArray(res.info.data, 'title', uni.getStorageSync('city'));
+							self.cityData = findCity[1];
+							self.cityIndex = findCity[0];
+						
+							console.log('cityIndex',self.cityIndex)
+							self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+							self.$Utils.loadAll(['getTypeData'], self); 
+						}else{
+							self.$Utils.loadAll(['getLocation'], self);	
+						}
+						self.allCityData.push.apply(self.allCityData, res.info.data);
+						console.log('self.allCityData',self.allCityData)
+					}
+					self.$Utils.finishFunc('getAllCity');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			getLocation() {
+				const self = this;
+				const callback = (res) => {
+					if (res) {
+						console.log('res', res)
+						if (res.authSetting) {
+							console.log(232)
+							return
+						}
+						self.city = res.address_component.city
+						var findCity = self.$Utils.findItemInArray(self.allCityData, 'title', self.city)
+						console.log('findCity',findCity);
+						if (findCity) {
+							self.cityIndex = findCity[0];
+							self.cityData = findCity[1];
+							self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+							uni.setStorageSync('city_id',self.city_id);
+							uni.setStorageSync('city',self.cityData.title);
+							self.$Utils.loadAll(['getTypeData'], self);
+						} else {
+							uni.showModal({
+								title: '提示',
+								content: '当前城市未开通，是否切换为默认城市西安',
+								success: function(res) {
+									if (res.confirm) {
+										self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
+										self.city = '西安市';
+										uni.setStorageSync('city_id',self.city_id);
+										uni.setStorageSync('city','西安市');
+										self.$Utils.loadAll(['getTypeData'], self);
+									} else if (res.cancel) {
+										console.log('用户点击取消');
+									}
+								}
+							});
+						};
+					};
+				};
+				self.$Utils.getLocation('reverseGeocoder', callback);
+			
+			},
+			
 			getTypeData() {
 				const self = this;
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
+					city_id:uni.getStorageSync('city_id')
 				};
 				postData.getBefore = {
 					caseData: {

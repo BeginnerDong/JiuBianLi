@@ -79,7 +79,7 @@
 						</view>
 						<view class="flexRowBetween">
 							<view class="price">{{item.price}}</view>
-							<view class="adBtn">+</view>
+							<view class="adBtn" @click="addCar(index)">+</view>
 						</view>
 					</view>
 				</view>
@@ -93,11 +93,11 @@
 					<view class="infor">
 						<view class="title avoidOverflow">{{item.title}}</view>
 						<view class="flex mgb10">
-							<view class="lab">组合装</view>
+							<view class="lab" v-if="item.combine_no!=''">组合装</view>
 						</view>
 						<view class="flexRowBetween B-price">
 							<view class="price">{{item.price}}</view>
-							<view class="adBtn">+</view>
+							<view class="adBtn" @click="addCar(index)">+</view>
 						</view>
 					</view>
 				</view>
@@ -174,7 +174,9 @@
 		
 		onLoad(options) {
 			const self = this;
-			self.id = options.id;
+			if(options.id){
+				self.id = options.id;
+			};
 			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
 			//self.$Utils.loadAll(['getTypeData'], self);
 		},
@@ -195,6 +197,27 @@
 		},
 		
 		methods: {
+			
+			addCar(index){
+				const self = this;
+				var array = self.$Utils.getStorageArray('cartData');
+				for (var i = 0; i < array.length; i++) {
+					if(array[i].id == self.id){
+						var target = array[i]
+					}
+				}
+				if(target){
+					target.count  = target.count + 1;
+					
+				}else{
+					var target = self.mainData[index];
+					target.count = 1;
+					
+					target.isSelect = true;
+				}
+				self.$Utils.setStorageArray('cartData', target, 'id', 999);
+				self.$Utils.showToast('已加入购物车', 'none', 1000);
+			},
 			
 			orderChange(item){
 				const self = this;
@@ -219,6 +242,12 @@
 				var item = self.allCityData[e.detail.value];
 				uni.setStorageSync('city_id',item.id);
 				uni.setStorageSync('city',item.title);
+				var data = self.$Utils.getStorageArray('cartData');
+				for (var i = 0; i < data.length; i++) {
+					if(data[i].city_id!=uni.getStorageSync('city_id')){
+						self.$Utils.delStorageArray('cartData', data[i], 'id');
+					}
+				}
 				self.$Utils.loadAll(['getAllCity'], self);	
 			},
 			
@@ -319,7 +348,10 @@
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
 						self.typeData.push.apply(self.typeData, res.info.data);
-						self.currId = self.typeData[0].id
+						self.currId = self.typeData[0].id;
+						if(self.id){
+							self.currId = self.id;
+						}
 					}
 					console.log('self.typeData', self.typeData)
 					self.getMainData()

@@ -66,29 +66,29 @@
 						<view class="ftw mgr15">评价</view>
 						<view class="fs12 color6">{{totalMessage}}人</view>
 					</view>
-					<view class="color6 fs12 flexEnd">好评度99.4%<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
+					<view class="color6 fs12 flexEnd">好评度{{goodRate}}%<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
 				</view>
 				<view  v-if="messageData.length>0">
 					<view class="flexRowBetween pdb15">
 						<view class="flex">
 							<image class="us-photo mgr10" 
-							:src="message[0].mainImg&&message[0].mainImg[0]?message[0].mainImg[0].url:''" mode=""></image>
+							:src="messageData[0].mainImg&&messageData[0].mainImg[0]?messageData[0].mainImg[0].url:''" mode=""></image>
 							<view class="color6">
-								<view class="fs13">{{message[0].title}}</view>
-								<view class="fs10">{{message[0].create_time}}</view>
+								<view class="fs13">{{messageData[0].title}}</view>
+								<view class="fs10">{{messageData[0].create_time}}</view>
 							</view>
 						</view>
 						<view class="xing flexEnd">
 							<view class="starBox mgr5">
-								<image v-for="c_item in stars" :src="message[0].score/2 > c_item ?(message[0].score/2-c_item == 0.5?halfSrc:selectedSrc) : normalSrc" mode="">
+								<image v-for="c_item in stars" :src="messageData[0].score/2 > c_item ?(messageData[0].score/2-c_item == 0.5?halfSrc:selectedSrc) : normalSrc" mode="">
 								
 								</image>
 							</view>
-							<view class="fs12 color9">{{message[0].score}}分</view>
+							<view class="fs12 color9">{{messageData[0].score}}分</view>
 						</view>
 					</view>
-					<view class="fs13">{{message[0].content}}</view>
-					<view class="flexCenter">
+					<view class="fs13">{{messageData[0].description}}</view>
+					<view class="flexCenter" @click="changeCurr('2')">
 						<view class="moreBtn mgt20 mgb20 fs12">更多评价</view>
 					</view>
 				</view>
@@ -119,7 +119,7 @@
 				
 				<view class="f5bj pdb15">
 					<view class="proList flex">
-						<view class="item" v-for="(item,index) in productData" :key="index" :data-id="item.id"
+						<view class="item" v-for="(item,index) in mainData.relationProduct" :key="index" :data-id="item.id"
 						@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 							<view class="pic">
 								<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
@@ -146,7 +146,7 @@
 						<view class="ftw mgr15">评价</view>
 						<view class="fs12 color6">{{totalMessage}}人</view>
 					</view>
-					<view class="color6 fs12 flexEnd">好评度99.4%<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
+					<view class="color6 fs12 flexEnd">好评度{{goodRate}}%<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
 				</view>
 				<view class="pjList" v-for="(item,index) in messageData" :key="index">
 					<view class="flexRowBetween pdb15">
@@ -168,11 +168,9 @@
 							<view class="fs12 color9">{{item.score}}分</view>
 						</view>
 					</view>
-					<view class="fs13">{{item.content}}</view>
+					<view class="fs13">{{item.description}}</view>
 				</view>
-				<view class="pjList" style="text-align: center">
-					暂无评论~
-				</view>
+				
 			</view>
 		</view>
 		
@@ -316,7 +314,7 @@
 				halfSrc: '../../static/images/details-icon1-a.png',
 				messageData:[],
 				cartData:[],
-				
+				goodRate:0
 			}
 		},
 		
@@ -597,14 +595,21 @@
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = {
 					thirdapp_id: 2,
-					relation_id :self.id,
+					//relation_id :self.id,
 					type:1,
-					relation_table:'product'
+					relation_table:'Product'
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
+						self.goodMessage = [];
 						self.messageData.push.apply(self.messageData, res.info.data);
+						for (var i = 0; i < self.messageData.length; i++) {
+							if(self.messageData[i].score>=8){
+								self.goodMessage.push(self.messageData[i])
+							}
+						}
 					}
+					self.goodRate = (self.goodMessage.length/self.messageData.length)*100;
 					console.log('23',res.info.total)
 					self.totalMessage = res.info.total;
 					console.log('self.messageData', self.messageData)

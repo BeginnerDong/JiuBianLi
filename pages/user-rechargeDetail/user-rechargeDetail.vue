@@ -29,7 +29,7 @@
 				searchItem:{
 					type:6,
 					pay_status:1,
-					
+					level:2
 				},
 				userInfoData:{},
 				mainData:[],

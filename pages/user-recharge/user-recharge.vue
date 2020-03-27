@@ -62,7 +62,8 @@
 				price:0,
 				orderId:'',
 				mainData:{},
-				artData:{}
+				artData:{},
+				productData:[]
 			}
 		},
 		
@@ -72,6 +73,35 @@
 		},
 		
 		methods: {
+			
+			getProductData() {
+				const self = this;
+				console.log('852369')
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id:2
+				};
+				postData.getBefore = {
+					caseData: {
+						tableName: 'Label',
+						searchItem: {
+							title: ['=', ['充值']],
+						},
+						middleKey: 'category_id',
+						key: 'id',
+						condition: 'in',
+					},
+				};
+				const callback = (res) => {
+					if (res.solely_code == 100000 && res.info.data[0]) {
+						self.productData.push.apply(self.productData,res.info.data)
+					} else {
+						self.$Utils.showToast(res.msg, 'none')
+					};
+					self.$Utils.finishFunc('getProductData');
+				};
+				self.$apis.productGet(postData, callback);
+			},
 			
 			getArtData() {
 				const self = this;
@@ -145,9 +175,10 @@
 			pay() {
 				const self = this;
 				uni.setStorageSync('canClick', false);	
+				self.price =  parseFloat(self.price)
 				const postData = {};	
 				postData.wxPay = {
-					price:parseFloat(0.01).toFixed(2)
+					price:self.price.toFixed(2)
 				};
 				postData.tokenFuncName = 'getProjectToken',
 				postData.searchItem = {
@@ -204,10 +235,10 @@
 			addOrder() {
 				const self = this;
 				uni.setStorageSync('canClick', false);	
-				if(self.orderId!=''){
+				/* if(self.orderId!=''){
 					self.pay();
 					return
-				};
+				}; */
 				if(self.curr<0){
 					self.$Utils.showToast('请选择充值金额', 'none');
 					return
@@ -222,7 +253,8 @@
 				}; */
 				postData.tokenFuncName = 'getProjectToken',
 				postData.data = {
-					price:parseFloat(0.01).toFixed(2)
+					price:parseFloat(0.01).toFixed(2),
+					level:2
 				}
 				const callback = (res) => {
 					if (res.solely_code == 100000) {

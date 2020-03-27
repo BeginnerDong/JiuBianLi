@@ -58,7 +58,7 @@
 			</view>
 			
 			<view class="submitbtn">
-				<button class="btn" type="button" @click="register">注册</button>
+				<button class="btn" type="button" @click="Utils.stopMultiClick(register)">注册</button>
 			</view>
 		</view>
 	</view>
@@ -69,6 +69,7 @@
 		data() {
 			return {
 				Router:this.$Router,
+				Utils:this.$Utils,
 				showView: false,
 				wx_info:{},
 				is_show:false,
@@ -139,7 +140,7 @@
 			
 			register() {
 				const self = this;
-				
+				uni.setStorageSync('canClick', false);
 				const postData = {
 					data:self.$Utils.cloneForm(self.registerData)					
 				}
@@ -154,6 +155,7 @@
 				delete newObject.code;
 				if (self.$Utils.checkComplete(newObject)) {						
 					const callback = (res) => {
+						uni.setStorageSync('canClick', true);
 						if (res.solely_code == 100000) {
 							self.$Utils.showToast(res.msg, 'none');
 							self.registerData = {																

@@ -46,7 +46,7 @@
 			<!-- 分类导航 -->
 			<view class="indHome flex pdt15">
 				<view class="item"  v-for="item in typeData" :key="index" :data-id="item.id"
-				@click="Router.navigateTo({route:{path:'/pages/classification/classification?id='+$event.currentTarget.dataset.id}})">
+				@click="Router.redirectTo({route:{path:'/pages/classification/classification?id='+$event.currentTarget.dataset.id}})">
 					<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
 					<view class="tit">{{item.title}}</view>
 				</view>
@@ -95,7 +95,7 @@
 		<view class="mglr4 pdb15">
 			<view class="pdt20 pdb10 flexRowBetween">
 				<view class="fs15 ftw">啤酒精选</view>
-				<view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
+				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
 			<view class="flexRowBetween jingxuan pijiu">
 				<view class="w460 h300 pr radius10" style="background: #ffffed;"  :data-id="labelOneData[0].id"
@@ -132,7 +132,7 @@
 		<view class="mglr4 pdb15">
 			<view class="pdt20 pdb10 flexRowBetween">
 				<view class="fs15 ftw">红酒精选</view>
-				<view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
+				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
 			<view class="flexRowBetween jingxuan hongjiu">
 				<view class="w220 h300 pr radius10"  :data-id="labelTwoData[0].id"
@@ -167,7 +167,7 @@
 		<view class="mglr4 pdb15">
 			<view class="pdt20 pdb10 flexRowBetween">
 				<view class="fs15 ftw">白酒精选</view>
-				<view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
+				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
 			
 			<view class="flexRowBetween baijiu">
@@ -214,7 +214,7 @@
 		<view class="pdlr4 f5bj pdb15">
 			<view class="pdt20 pdb15 flexRowBetween">
 				<view class="fs15 ftw">为您推荐</view>
-				<view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
+				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
 			<view class="proList flex">
 				<view class="item" v-for="(item,index) in productData" :key="index" :data-id="item.id"

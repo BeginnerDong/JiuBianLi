@@ -37,7 +37,7 @@
 			<view class="item flex">
 				<view class="ll">性别</view>
 				<view class="rr color6" v-if="mainData.info&&mainData.info.gender==1">男</view>
-				<view class="rr color6" v-if="mainData.info&&mainData.info.gender==2">男</view>
+				<view class="rr color6" v-if="mainData.info&&mainData.info.gender==2">女</view>
 			</view>
 			<view class="item flex">
 				<view class="ll">年龄</view>

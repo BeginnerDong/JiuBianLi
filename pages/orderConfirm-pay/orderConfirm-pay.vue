@@ -61,14 +61,19 @@
 				num:2,
 				userInfoData:{},
 				pay:{},
-				price:0
+				price:0,
+				ratioArray:[]
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
 			self.orderId = options.id;
+			self.ratioArray = [{ratio:uni.getStorageSync('user_info').thirdApp.custom_rule.new_ratio/100},
+			{ratio:uni.getStorageSync('user_info').thirdApp.custom_rule.ordinary_ratio/100},{ratio:uni.getStorageSync('user_info').thirdApp.custom_rule.silver_ratio/100},
+			{ratio:uni.getStorageSync('user_info').thirdApp.custom_rule.gold_ratio/100},{ratio:uni.getStorageSync('user_info').thirdApp.custom_rule.diamond_ratio/100},]
 			self.$Utils.loadAll(['getUserInfoData'], self);
+			
 		},
 		
 		onShow() {
@@ -87,9 +92,25 @@
 				postData.searchItem = {
 					user_no: uni.getStorageSync('user_info').user_no
 				};
+				postData.getAfter = {
+					parent:{
+						tableName:'Distribution',
+						middleKey:'user_no',
+						key:'child_no',
+						searchItem:{
+							status:1
+						},
+						condition:'='
+					}
+				};
 				const callback = (res) => {
 					if (res.solely_code == 100000 && res.info.data[0]) {
 						self.userInfoData = res.info.data[0];
+						for (var i = 0; i < self.ratioArray.length; i++) {
+							if(self.userInfoData.level==i){
+								self.scoreRatio = self.ratioArray[i].ratio
+							}
+						}
 					} else {
 						self.$Utils.showToast(res.msg, 'none')
 					};
@@ -122,12 +143,45 @@
 			
 			goPay() {
 				const self = this;	
-				
+				var rewardRatio = uni.getStorageSync('user_info').thirdApp.custom_rule.reward/100;
 				const postData = self.$Utils.cloneForm(self.pay)	
 				postData.tokenFuncName = 'getProjectToken',
 				postData.searchItem = {
 					id: self.orderId
 				};	
+				postData.payAfter = [];
+				if(self.scoreRatio&&parseFloat(self.price)>0&&self.scoreRatio>0){
+					postData.payAfter.push(
+						{
+							tableName: 'FlowLog',
+							FuncName: 'add',
+							data: {
+								type:3,
+								count:parseFloat(self.scoreRatio*parseFloat(self.price)).toFixed(2),
+								trade_info:'消费赠积分',
+								account:1,
+								thirdapp_id:2,
+								user_no:uni.getStorageSync('user_info').user_no
+							},
+						},
+					)
+				};
+				if(self.userInfoData.parent&&self.userInfoData.parent[0]&&parseFloat(self.price)>0&&rewardRatio>0){
+					postData.payAfter.push(
+						{
+							tableName: 'FlowLog',
+							FuncName: 'add',
+							data: {
+								type:4,
+								count:parseFloat(self.scoreRatio*parseFloat(self.price)).toFixed(2),
+								trade_info:'下级消费返红包',
+								account:1,
+								thirdapp_id:2,
+								user_no:self.userInfoData.parent[0].parent_no
+							},
+						},
+					)
+				};
 				const callback = (res) => {
 					if (res.solely_code == 100000) {
 						uni.setStorageSync('canClick', true);

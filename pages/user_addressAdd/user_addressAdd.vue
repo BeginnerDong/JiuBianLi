@@ -61,7 +61,8 @@
 					city: '',
 					detail: '',
 					isdefault:'0',
-					province:''
+					province:'',
+					phone:''
 				},
 				
 				mulLinkageTwoPicker: cityData,
@@ -204,7 +205,11 @@
 				console.log('self.data.sForm', self.submitData)
 				console.log('pass', pass)
 				if (pass) {
-					
+					if (phone.trim().length != 11 || !/^1[3|4|5|6|7|8|9]\d{9}$/.test(self.submitData.phone)) {
+						uni.setStorageSync('canClick', true);
+						self.$Utils.showToast('手机格式不正确', 'none')	
+						return
+					};
 					if (self.id) {
 
 						self.addressUpdate();

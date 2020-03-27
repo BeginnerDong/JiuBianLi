@@ -6,7 +6,7 @@
 		</view>
 		<view class="flexCenter">
 			<view class="q-btn center" 
-			@click="Router.navigateTo({route:{path:mainData.url}})">立即抢购</view>
+			@click="toDetail">立即抢购</view>
 		</view>
 		
 	</view>
@@ -29,6 +29,16 @@
 		
 		
 		methods: {
+			
+			toDetail(){
+				const self = this;
+				if(self.mainData.url!=''){
+					self.Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+self.mainData.url}})
+				}else{
+					console.log('未设置')
+				}
+			},
+			
 			getMainData() {
 				const self = this;
 				const postData = {};

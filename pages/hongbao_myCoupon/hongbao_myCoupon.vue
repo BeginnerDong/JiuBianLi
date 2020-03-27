@@ -7,12 +7,13 @@
 					<view class="mny">{{item.value}}</view>
 					<view class="infor fs12">
 						<view>{{item.value}}元优惠券</view>
-						<view class="flex mgt15"><view class="labBtn">满{{item.condition}}元使用</view></view>
+						<view class="flex mgt5"><view class="labBtn">满{{item.condition}}元使用</view></view>
+						<view class="flex mgt5 color9">{{item.create_time}} ~ {{item.invalid_time}}</view>
 					</view>
 				</view>
-				<!-- <view class="rr flexCenter">
-					<view class="lq-btn">领取</view>
-				</view> -->
+				<view class="rr flexCenter" @click="Router.reLaunch({route:{path:'/pages/index/index'}})">
+					<view class="lq-btn">立即使用</view>
+				</view>
 			</view>
 		</view>
 		
@@ -61,6 +62,7 @@
 			
 			getMainData(isNew) {
 				const self = this;
+				var now =  (new Date()).getTime();
 				if (isNew) {
 					self.mainData = [];
 					self.paginate = {
@@ -75,11 +77,16 @@
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = {
 					thirdapp_id: 2,
-					use_step:1
+					use_step:1,
+					invalid_time:['>',now]
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
 						self.mainData.push.apply(self.mainData, res.info.data);
+						for (var i = 0; i < self.mainData.length; i++) {
+							self.mainData[i].create_time = self.mainData[i].create_time.substr(0,10);
+							self.mainData[i].invalid_time = self.$Utils.timeto(self.mainData[i].invalid_time,'ymd')
+						}
 					}
 					console.log('self.mainData', self.mainData)
 					self.$Utils.finishFunc('getMainData');

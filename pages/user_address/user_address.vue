@@ -4,7 +4,7 @@
 				<view class="name" @click="choose(index)">{{item.name}}<view class="numb">{{item.phone}}</view></view>
 				<view class="adrs" @click="choose(index)">{{item.city+item.detail}}</view>
 				<view class="seltBox">
-					<view class="L"  :data-id="item.id" @click="updateAddress($event.currentTarget.dataset.id)">
+					<view class="L"  @click="updateAddress(index)">
 						<image class="icon" :src="item.isdefault==1?'../../static/images/shopping-icon3.png':'../../static/images/shopping-icon2.png'"  mode=""></image>
 						默认地址
 					</view>
@@ -114,16 +114,20 @@
 			},
 
 
-			updateAddress(id) {
+			updateAddress(index) {
 				const self = this;
 				const postData = {};
-
+				if(self.mainData[index].isdefault==1){
+					var isdefault=-1
+				}else{
+					var isdefault=1
+				}
 				postData.tokenFuncName = 'getProjectToken';
 
 				postData.searchItem = {};
-				postData.searchItem.id = id;
+				postData.searchItem.id = self.mainData[index].id;
 				postData.data = {
-					isdefault: 1
+					isdefault: isdefault
 				}
 				const callback = (res) => {
 					if (res) {
