@@ -1,0 +1,80 @@
+
+
+/* 分类导航 */
+.indHome{ flex-wrap:wrap;}
+.indHome .item{width: 20%;text-align: center;padding-bottom: 15px; font-size: 24rpx; color: #222;display: flex; flex-direction: column;}
+.indHome .item image {width:80rpx;height: 80rpx; border-radius: 50%;margin-bottom: 20rpx;margin: 0 auto 10rpx auto;}
+/* banner */
+.swiper-box{height: 260rpx;box-sizing: border-box; width: 100%;border-radius: 8rpx; overflow: hidden;}
+.swiper-box image {width: 100%;height: 100%;}
+
+
+.indCoupon{height: 347rpx;width: 100%;box-sizing: border-box;}
+.indCoupon .title{font-size: 55rpx; line-height: 55rpx;padding: 36rpx 0 26rpx 0;color: #fcfcb2; font-weight: bold; letter-spacing: 2px;text-shadow: 0 0 10rpx rgba(0,0,0,0.4);}
+.indCoupon .item{width: 25%; height: 156rpx;margin: 20rpx 0;border-right: 1px dashed #FF2121; box-sizing: border-box;font-size: 18rpx;line-height: 32rpx;padding: 10rpx 0;}
+.indCoupon .item:last-child{border-right: 0;}
+.indCoupon .item .mny{font-size: 64rpx;line-height: 54rpx; font-weight: bold;padding-bottom: 12rpx;    letter-spacing: -4rpx}
+.indCoupon .item .mny::before{content: '￥'; font-size: 30rpx; font-weight: normal;line-height: 40rpx;}
+
+.ind_probox1{align-items: flex-start;}
+.ind_probox1 .Lbox{width: 230rpx; height: 420rpx; border-radius:8rpx;background: url(../../static/images/home-img2.1.png) no-repeat 0 0/100% 100%;position: relative;}
+.ind_probox1 .FXLabel{width: 73rpx;height: 42rpx;display: block; position: absolute; right: 6rpx;top: 10rpx;}
+.ind_probox1 .pic{width: 128rpx; height: 180rpx; display: block;}
+.ind_probox1 .pic image{width: 100%; height: 100%;display: block;}
+.ind_probox1 .Lbox .pic{margin: 40rpx auto 20rpx auto;}
+.ind_probox1 .Lbox .name{font-size: 26rpx; color: #ffe450; font-weight: bold;position: relative;z-index: 2;}
+
+.ind_probox1 .Lbox .xian{width: 100%; height: 10rpx;background: #ff5143; position: absolute; bottom: 2rpx;left: 0; z-index: 0;}
+.ind_probox1 .goBtn{width: 140rpx; height: 40rpx; line-height: 40rpx; border-radius: 20rpx;background: #9129e5;font-size: 18rpx;}
+.ind_probox1 .Rbox{width: 450rpx; align-items: flex-start;}
+.ind_probox1 .Rbox .item{ width: 450rpx; height: 205rpx;/* border-radius: 8rpx; */background: url(../../static/images/home-img2.1.png) no-repeat 0 0/100% 100%;position: relative;padding: 0 20rpx;box-sizing: border-box;}
+.ind_probox1 .Rbox .pic{width: 114rpx; height: 160rpx;}
+.ind_probox1 .Rbox .left{width: 62%;padding-top: 40rpx;}
+.ind_probox1 .Rbox .right{position: absolute;right: 10%; top: 20rpx;}
+
+.w220{width: 220rpx;}
+.w460{width: 460rpx;}
+.h300{height: 300rpx;}
+
+/* 精选 */
+.jingxuan .infor{padding: 30rpx 0 0 20rpx;}
+.jingxuan .infor .tit{font-size: 28rpx;}
+.jingxuan .infor .tex2{font-size: 24rpx;}
+.jingxuan .infor .goBtn{width: 120rpx; height: 40rpx;line-height: 40rpx;text-align: center;color: #fff;border-radius: 8rpx;font-size: 20rpx; margin-top: 30rpx;}
+.jingxuan .pic{position: absolute; right: 10rpx; bottom: 10rpx; z-index: 1;}
+.jingxuan .pic image{width: 100%; height: 100%; display: block;}
+.jingxuan .B-fxBj{ position: absolute; bottom: 0; left: 0; width: 100%; height: 68rpx;}
+
+.jingxuan .w220 .pic{width: 60rpx; height: 172rpx;display: block;}
+.jingxuan .w460 .pic{width: 200rpx; height: 190rpx;display: block;}
+
+/* 啤酒精选 */
+.pijiu .w460 .infor .tit{color: #ff713a;}
+.pijiu .w460 .infor .tex2{color: #fe976f;}
+.pijiu .w460 .infor .goBtn{background: #ff8657;}
+.pijiu .w220 .infor .tit{color: #1b9e3a;}
+.pijiu .w220 .infor .tex2{color: #4bd76c;}
+.pijiu .w220 .infor .goBtn{background: #1b9e3a;}
+
+/* 红酒精选 */
+.hongjiu .w220{background: #ffe8e8;}
+.hongjiu .w220 .infor .tit{color: #c51010;}
+.hongjiu .w220 .infor .tex2{color: #fa5252;}
+.hongjiu .w220 .infor .goBtn{background: #c51010;}
+.hongjiu .w460{background: #f8edff;}
+.hongjiu .w460 .infor .tit{color: #a73aec;}
+.hongjiu .w460 .infor .tex2{color: #b664eb;}
+.hongjiu .w460 .infor .goBtn{background: #a73aec;}
+
+/* 白酒精选 */
+.baijiu .w230{width: 230rpx; height: 420rpx;background: #ffe2ed;}
+.baijiu .w450{width: 450rpx; height: 420rpx;}
+.baijiu .w450 .item{width: 100%; height: 205rpx;}
+.baijiu .infor{padding: 50rpx 0 0 20rpx;}
+.baijiu .infor .tit{font-size: 28rpx; color:#f11f6f;}
+.baijiu .infor .tex2{font-size: 24rpx;color: #f6548c;}
+.baijiu .pic image{width: 128rpx; height: 180rpx;display: block;}
+
+.baijiu .w450 .item .infor{width: 60%;}
+.baijiu .w450 .item .pic{position: absolute;right: 30rpx; top: 20rpx;}
+.baijiu .w450 .item .pic image{width: 114rpx; height: 160rpx;}
