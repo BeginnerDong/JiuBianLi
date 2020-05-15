@@ -57,8 +57,17 @@
 							<image :src="item.product&&item.product.mainImg&&item.product.mainImg[0]?item.product.mainImg[0].url:''" mode=""></image>
 						</view>
 						<view class="infor">
-							<view class="title avoidOverflow">{{item.product?item.product.title:''}}</view>
-							<view class="flexRowBetween B-price">
+							<view class="title avoidOverflow2">
+							{{item.product?item.product.title:''}}<span style="margin-left: 20rpx;" v-if="item.data&&item.data.behavior&&item.data.behavior==1">
+							{{item.product?item.product.combine_price:''}}元/{{item.product?item.product.combine_count:''}}瓶</span>
+							</view>
+	
+							<view class="flexRowBetween B-price" v-if="item.data&&item.data.behavior&&item.data.behavior==1">
+								<view class="price fs14">{{item.product?item.product.combine_price:''}}</view>
+								<view class="flex">×{{item.count/item.product.combine_count}}</view>
+							</view>
+						
+							<view class="flexRowBetween B-price" v-else>
 								<view class="price fs14">{{item.product?item.product.price:''}}</view>
 								<view class="flex">×{{item.count}}</view>
 							</view>
@@ -69,7 +78,7 @@
 					<view class="item flexRowBetween">
 						<view class="ll fs13 ftw">红包</view>
 						<view class="rr fs12">
-							<view style="color:#ff2121" v-if="pay.bonus&&pay.bonus.price>0">红包抵扣{{pay.bonus.price}}元</view>
+							<view style="color:#ff2121" v-if="pay.bonus&&pay.bonus.price>0">红包抵扣{{pay.bonus.price>=totalPrice?totalPrice:pay.bonus.price}}元</view>
 							<view class="color9" v-else>暂无红包可用</view>
 							<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image>
 						</view>
@@ -95,7 +104,7 @@
 					<view class="item flexRowBetween">
 						<view class="ll fs13 ftw"></view>
 						<view class="rr fs12 color6">
-							合计<view class="price ftw fs15 mgl5">{{pay.wxPay&&pay.wxPay.price?pay.wxPay.price:'0'}}</view>
+							合计<view class="price ftw fs15 mgl5">{{pay.wxAppPay&&pay.wxAppPay.price?pay.wxAppPay.price:'0'}}</view>
 						</view>
 					</view>
 				</view>
@@ -192,7 +201,8 @@
 				couponData:[],
 				chooseCoupon:[],
 				couponTotalPrice:0,
-				receiptData:{}
+				receiptData:{},
+			
 			}
 		},
 		
@@ -361,17 +371,30 @@
 				var bonusLimit = parseFloat(uni.getStorageSync('user_info').thirdApp.custom_rule.bonus_limit);
 				self.couponTotalPrice = self.$Utils.addItemInArray(self.pay.coupon, 'price');
 				
-				if(parseFloat(self.userInfoData.bonus)>0){
-					if(parseFloat(self.userInfoData.bonus)<bonusLimit){
-						self.bonusPrice = self.userInfoData.bonus;
-					}else{
-						self.bonusPrice = bonusLimit;
-					};
-				}
+				
 				
 				for (var i = 0; i < self.mainData.length; i++) {
-					self.totalPrice += self.mainData[i].product.price * self.mainData[i].count;
+					self.totalPrice += self.mainData[i].product.behavior==1?parseFloat(self.mainData[i].product.combine_price):parseFloat(self.mainData[i].product.price);
+					
 				};
+				
+				if(parseFloat(self.userInfoData.bonus)>0){
+					if(parseFloat(self.userInfoData.bonus)<bonusLimit){
+						if(parseFloat(self.totalPrice)>parseFloat(self.userInfoData.bonus)){
+							self.bonusPrice = self.userInfoData.bonus;
+						}else{
+							self.bonusPrice = parseFloat(self.totalPrice);
+						}
+						
+					}else{
+						if(parseFloat(self.totalPrice)>parseFloat(self.userInfoData.bonus)){
+							self.bonusPrice = bonusLimit;
+						}else{
+							self.bonusPrice = parseFloat(self.totalPrice)
+						}
+						
+					};
+				}
 				console.log('self.totalPrice',self.totalPrice)
 				console.log('self.couponTotalPrice',self.couponTotalPrice)
 				console.log('self.bonusPrice',parseFloat(self.bonusPrice))
@@ -405,16 +428,22 @@
 				const postData = {}; 
 				postData.orderList = self.$Utils.cloneForm(self.mainData);
 				postData.data = self.$Utils.cloneForm(self.submitData);
+				postData.data.price = self.pay.wxAppPay&&self.pay.wxAppPay.price?self.pay.wxAppPay.price:0;
 				postData.parent = 1;
 				postData.tokenFuncName = 'getProjectToken';
 				const callback = (res) => {
 					if (res && res.solely_code == 100000) {
+						if(!self.pay.wxAppPay){
+							self.goPay()
+							return
+						};
 						self.orderId = res.info.id;
 						uni.setStorageSync('payData',self.pay)
 						self.Router.redirectTo({route:{path:'/pages/orderConfirm-pay/orderConfirm-pay?id='+self.orderId}})
 						for (var i = 0; i < self.mainData.length; i++) {
 							self.$Utils.delStorageArray('cartData', self.mainData[i], 'id');
-						}
+						};
+						
 					} else {		
 						uni.setStorageSync('canClick', true);
 						uni.showToast({

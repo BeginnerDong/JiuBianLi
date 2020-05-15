@@ -14,14 +14,20 @@
 							<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
 						</view>
 						<view class="infor">
-							<view class="title avoidOverflow">{{item.title}}</view>
+							<view class="title avoidOverflow2">{{item.title}}<span style="margin-left: 20rpx;" v-if="item.behavior==1">
+							{{item.combine_price}}元/{{item.combine_count}}瓶</span></view>
 
 							<view class="flexRowBetween B-price">
-								<view class="price fs14">{{item.price}}</view>
-								<view class="numBox flex">
+								<view class="price fs14">{{item.behavior==1?item.combine_price:item.price}}</view>
+								<view class="numBox flex" v-if="item.behavior==0">
 									<view @click="counter(index,'-')">-</view>
 									<view class="num">{{item.count}}</view>
 									<view @click="counter(index,'+')">+</view>
+								</view>
+								<view class=" flex" v-if="item.behavior==1">
+									
+									<view class="num">x{{item.count/item.combine_count}}</view>
+									
 								</view>
 							</view>
 						</view>
@@ -202,7 +208,7 @@
 				        if (res.confirm) {
 				            for (var i = 0; i < self.mainData.length; i++) {
 				            	if (self.mainData[i].isSelect) {
-				            		self.$Utils.delStorageArray('cartData', self.mainData[i], 'id');
+				            		self.$Utils.delStorageArray('cartData', self.mainData[i], ['id','behavior']);
 				            	}
 				            };
 				            self.mainData = self.$Utils.getStorageArray('cartData');
@@ -222,11 +228,16 @@
 				var newArray = [];
 				 newArray = newArray.concat(self.memberData, self.addData,self.mainData);
 				console.log('newArray', newArray)
+				
 				for (var i = 0; i < newArray.length; i++) {
+					var data = {}
 					if (newArray[i].isSelect) {
+						if(newArray[i].behavior==1){
+							data.behavior = 1
+						};
 						self.orderList.push(
 							{product_id:newArray[i].id,count:newArray[i].count,
-							type:newArray[i].type,product:newArray[i]},
+							type:newArray[i].type,product:newArray[i],data:data},
 						);
 					};
 				};
@@ -235,7 +246,7 @@
 					return;
 				};
 				self.$Utils.setStorageArray('orderList', self.orderList);
-				self.Router.redirectTo({route:{path:'/pages/orderConfirm/orderConfirm'}})
+				self.Router.navigateTo({route:{path:'/pages/orderConfirm/orderConfirm'}})
 			},
 
 			checkChooseAll() {
@@ -257,7 +268,7 @@
 				console.log(self.isChooseAll)
 				for (var i = 0; i < self.mainData.length; i++) {
 					self.mainData[i].isSelect = self.isChooseAll;
-					self.$Utils.setStorageArray('cartData', self.mainData[i], 'id', 999);
+					self.$Utils.setStorageArray('cartData', self.mainData[i], ['id','behavior'], 999);
 				};
 				console.log(self.mainData)
 				self.countTotalPrice();
@@ -281,7 +292,7 @@
 				} else {
 					self.mainData[index].isSelect = true;
 				};
-				self.$Utils.setStorageArray('cartData', self.mainData[index], 'id', 999);
+				self.$Utils.setStorageArray('cartData', self.mainData[index], ['id','behavior'], 999);
 
 				self.checkChooseAll();
 				self.countTotalPrice();
@@ -381,7 +392,7 @@
 						self.mainData[index].count--;
 					}
 				};
-				self.$Utils.setStorageArray('cartData', self.mainData[index], 'id', 999);
+				self.$Utils.setStorageArray('cartData', self.mainData[index], ['id','behavior'], 999);
 
 				self.countTotalPrice();
 			},
@@ -409,8 +420,11 @@
 				console.log('newArray', newArray)
 				for (var i = 0; i < newArray.length; i++) {
 					if (newArray[i].isSelect) {
-						self.totalPrice += newArray[i].price * newArray[i].count;
-						self.totalCount += newArray[i].count
+						
+						self.totalPrice += newArray[i].behavior==1?parseFloat(newArray[i].combine_price) * (newArray[i].count/newArray[i].combine_count):parseFloat(newArray[i].price) * newArray[i].count;
+						self.totalCount += newArray[i].behavior==1?newArray[i].count/newArray[i].combine_count:newArray[i].count
+						console.log(i,self.totalPrice)
+						console.log(i,self.totalCount)
 					};
 				};
 				self.totalPrice = parseFloat(self.totalPrice).toFixed(2);

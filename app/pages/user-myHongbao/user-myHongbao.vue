@@ -6,7 +6,7 @@
 		</view>
 		 
 		<view class="myRowBetween">
-			<view class="item flexRowBetween" v-for="item in mainData" :key="index">
+			<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index">
 				<view class="ll">
 					<view>{{item.count>0?'获得红包':'购买商品'}}</view>
 					<view class="fs12 color9">{{item.create_time}}</view>

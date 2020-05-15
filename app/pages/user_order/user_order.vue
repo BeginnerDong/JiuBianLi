@@ -22,8 +22,21 @@
 							<image :src="c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product
 							&&c_item.orderItem[0].snap_product.mainImg&&c_item.orderItem[0].snap_product.mainImg[0]?c_item.orderItem[0].snap_product.mainImg[0].url:''" mode=""></image>
 						</view>
-						<view class="infor">
-							<view class="title avoidOverflow">{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.title:''}}</view>
+						<view class="infor" v-if="c_item.behavior==1">
+							<view class="title avoidOverflow">
+							{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.title:''}}
+							{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.combine_price:''}}元/{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.combine_count:''}}瓶
+							</view>
+							
+							<view class="flexRowBetween B-price">
+								<view class="price fs14">{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.combine_price:''}}</view>
+								<view class="flex">×{{c_item.count/c_item.orderItem[0].snap_product.combine_count}}</view>
+							</view>
+						</view>
+						<view class="infor" v-else>
+							<view class="title avoidOverflow">
+							{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.title:''}}
+							</view>
 							
 							<view class="flexRowBetween B-price">
 								<view class="price fs14">{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.price:''}}</view>

@@ -1,14 +1,14 @@
 <template>
 	<view>
 		<view class="bjPic" 
-		:style="'background: url('+allCityData[cityIndex]&&allCityData[cityIndex].mainImg?allCityData[cityIndex].mainImg[0].url:''+') no-repeat 0 0/100% 456rpx;'">
+		:style="'background: url('+allCityData&&allCityData[cityIndex]&&allCityData[cityIndex].mainImg&&allCityData[cityIndex].mainImg[0]?allCityData[cityIndex].mainImg[0].url:''+') no-repeat 0 0/100% 456rpx;'">
 			<!-- 搜索 -->
 			<view class="seachbox flexRowBetween">
 				<view class="flex" >
 					<image class="mgr5 Licon" src="../../static/images/home-icon.png" />
-					<picker :range="allCityData" 
+					<picker  :range="allCityData" 
 					range-key="title" @change="changeCity">
-						<view class="Gps fs13 avoidOverflow white">{{allCityData[cityIndex].title?allCityData[cityIndex].title:''}}</view>
+						<view class="Gps fs13 avoidOverflow white">{{allCityData&&allCityData[cityIndex]&&allCityData[cityIndex].title?allCityData[cityIndex].title:''}}</view>
 					</picker>
 					
 				</view>
@@ -46,7 +46,7 @@
 		<view class="mglr4">
 			<!-- 分类导航 -->
 			<view class="indHome flex pdt15">
-				<view class="item"  v-for="item in typeData" :key="index" :data-id="item.id"
+				<view class="item"  v-for="(item,index) in typeData" :key="index" :data-id="item.id"
 				@click="Router.redirectTo({route:{path:'/pages/classification/classification?id='+$event.currentTarget.dataset.id}})">
 					<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
 					<view class="tit">{{item.title}}</view>
@@ -98,7 +98,7 @@
 				<view class="fs15 ftw">啤酒精选</view>
 				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
-			<view class="flexRowBetween jingxuan pijiu">
+			<view class="flexRowBetween jingxuan pijiu" v-if="labelOneData[0]">
 				<view class="w460 h300 pr radius10" style="background: #ffffed;"  :data-id="labelOneData[0].id"
 				@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="infor">
@@ -126,6 +126,7 @@
 					<image class="B-fxBj" src="../../static/images/home-img8.png" mode=""/>
 				</view>
 			</view>
+			<view v-else style="width: 100%;text-align: center;">暂无数据</view>
 		</view>
 		<view class="f5H5"></view>
 		
@@ -135,7 +136,7 @@
 				<view class="fs15 ftw">红酒精选</view>
 				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
-			<view class="flexRowBetween jingxuan hongjiu">
+			<view class="flexRowBetween jingxuan hongjiu" v-if="labelTwoData[0]">
 				<view class="w220 h300 pr radius10"  :data-id="labelTwoData[0].id"
 				@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="infor">
@@ -161,6 +162,7 @@
 					</view>
 				</view>
 			</view>
+			<view v-else style="width: 100%;text-align: center;">暂无数据</view>
 		</view>
 		<view class="f5H5"></view>
 		
@@ -171,7 +173,7 @@
 				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
 			
-			<view class="flexRowBetween baijiu">
+			<view class="flexRowBetween baijiu" v-if="labelThreeData[0]">
 				<view class="w230 pr radius10"  :data-id="labelThreeData[0].id"
 				@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="infor">
@@ -209,6 +211,7 @@
 						
 				</view>
 			</view>
+			<view v-else style="width: 100%;text-align: center;">暂无数据</view>
 		</view>
 		
 		<!-- 为您推荐 -->
@@ -217,8 +220,8 @@
 				<view class="fs15 ftw">为您推荐</view>
 				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
-			<view class="proList flex">
-				<view class="item" v-for="(item,index) in productData" :key="index" :data-id="item.id"
+			<view class="proList flex" v-if="productData.length>0">
+				<view class="item"  v-for="(item,index) in productData" :key="index" :data-id="item.id"
 				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="pic">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
@@ -231,7 +234,9 @@
 						</view>
 					</view>
 				</view>
+				
 			</view>
+			<view v-else style="width: 100%;text-align: center;">暂无数据</view>
 		</view>
 		
 		<!--底部tab键-->
@@ -312,6 +317,7 @@
 			
 			changeCity(e){
 				const self = this;
+				
 				console.log('e',e);
 				var item = self.allCityData[e.detail.value];
 				uni.setStorageSync('city_id',item.id);
@@ -331,7 +337,7 @@
 					if (res.info.data.length > 0) {
 						self.allCityData.push.apply(self.allCityData, res.info.data)
 						if(uni.getStorageSync('city_id')>0){
-							var findCity = self.$Utils.findItemInArray(self.allCityData, 'title', uni.getStorageSync('city'));
+							var findCity = self.$Utils.findItemInArrayOne(self.allCityData, 'title', uni.getStorageSync('city'));
 							self.cityData = findCity[1];
 							self.cityIndex = findCity[0];
 							console.log('cityIndex',self.cityIndex)
@@ -352,11 +358,11 @@
 					if (res) {
 						console.log('res', res)
 						if (res.authSetting) {
-							console.log(232)
+					
 							return
 						}
 						self.city = res.address_component.city
-						var findCity = self.$Utils.findItemInArray(self.allCityData, 'title', self.city)
+						var findCity = self.$Utils.findItemInArrayOne(self.allCityData, 'title', self.city)
 						console.log('findCity',findCity);
 						if (findCity) {
 							self.cityIndex = findCity[0];
@@ -452,7 +458,6 @@
 					if (res.info.data.length > 0) {
 						self.bannerData.push.apply(self.bannerData, res.info.data)
 					}
-					console.log('self.bannerData', self.bannerData)
 					self.$Utils.finishFunc('getBannerData');
 				};
 				self.$apis.labelGet(postData, callback);
@@ -502,7 +507,6 @@
 						self.typeData.push.apply(self.typeData, res.info.data);
 						
 					}
-					console.log('self.typeData', self.typeData)
 					self.$Utils.finishFunc('getTypeData');
 				};
 				self.$apis.labelGet(postData, callback);
@@ -534,7 +538,6 @@
 					if (res.info.data.length > 0) {
 						self.labelOneData.push.apply(self.labelOneData, res.info.data)
 					}
-					console.log('self.labelOneData', self.labelOneData)
 					self.$Utils.finishFunc('getLabelOneData');
 				};
 				self.$apis.labelGet(postData, callback);
@@ -566,7 +569,6 @@
 					if (res.info.data.length > 0) {
 						self.labelTwoData.push.apply(self.labelTwoData, res.info.data)
 					}
-					console.log('self.labelTwoData', self.labelTwoData)
 					self.$Utils.finishFunc('getLabelTwoData');
 				};
 				self.$apis.labelGet(postData, callback);
@@ -598,7 +600,6 @@
 					if (res.info.data.length > 0) {
 						self.labelThreeData.push.apply(self.labelThreeData, res.info.data)
 					}
-					console.log('self.labelThreeData', self.labelThreeData)
 					self.$Utils.finishFunc('getLabelThreeData');
 				};
 				self.$apis.labelGet(postData, callback);
@@ -616,7 +617,6 @@
 					if (res.info.data.length > 0) {
 						self.couponData.push.apply(self.couponData, res.info.data)
 					}
-					console.log('self.couponData', self.couponData)
 					self.$Utils.finishFunc('getCouponData');
 				};
 				self.$apis.couponGet(postData, callback);
@@ -644,7 +644,6 @@
 					if (res.info.data.length > 0) {
 						self.productData.push.apply(self.productData, res.info.data)
 					}
-					console.log('self.productData', self.productData)
 					self.$Utils.finishFunc('getProductData');
 				};
 				self.$apis.productGet(postData, callback);

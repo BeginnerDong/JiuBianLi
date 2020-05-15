@@ -200,12 +200,11 @@ export default {
 	finishFunc(funcName) {
 		uni.setStorageSync('canClick', true);
 		var loadArray = uni.getStorageSync('loadAllArray');
-		console.log('loadArray',loadArray)
+	
 		if (loadArray && loadArray.length > 0) {
 			var length = loadArray.indexOf(funcName);
 			if (length >= 0) {
 				loadArray.splice(length, 1);
-				console.log('finishFunc')
 				uni.setStorageSync('loadAllArray', loadArray);
 				if (uni.getStorageSync('loadAllArray').length == 0) {
 					uni.hideLoading();
@@ -448,9 +447,12 @@ export default {
 	setStorageArray(storageName, item, key, limit, type = 'unshift') {
 
 		const self = this;
+		console.log(key);
+		//return
 		if (uni.getStorageSync(storageName)) {
 			var array = JSON.parse(uni.getStorageSync(storageName));
 			if (array.length < limit) {
+				console.log("!")
 				self.setItemInArray(array, item, key, type);
 			} else {
 				if (type == 'unshift') {
@@ -458,7 +460,7 @@ export default {
 				} else {
 					array.splice(0, 1);
 				};
-				self.setItemInArray(array, item, key, type);
+				self.setItemInArray(array, item, key,type);
 			};
 		} else {
 			var array = [];
@@ -474,18 +476,40 @@ export default {
 
 		const self = this;
 		var array = JSON.parse(uni.getStorageSync(storageName));
-		var index = self.findItemInArray(array, key, item[key])[0];
+		var index = self.findItemInArray(array, key, item)[0];
 		array.splice(index, 1);
 		array = JSON.stringify(array);
 		uni.setStorageSync(storageName, array);
 		return true;
 
 	},
+	
+	findItemInArrayOne(array, fieldName, field) {
+	
+		for (var i = 0; i < array.length; i++) {
+			if (array[i][fieldName] == field) {
+				return [i, array[i]];
+			}
+		};
+		
+		return false;
+	},
 
 	findItemInArray(array, fieldName, field) {
 
-		for (var i = 0; i < array.length; i++) {
+		/* for (var i = 0; i < array.length; i++) {
 			if (array[i][fieldName] == field) {
+				return [i, array[i]];
+			}
+		}; */
+		for (var i = 0; i < array.length; i++) {
+			var same = true
+			for (var j = 0; j < fieldName.length; j++) {
+				if(array[i][fieldName[j]]!=field[fieldName[j]]){
+					same = false
+				}
+			};
+			if(same==true){
 				return [i, array[i]];
 			}
 		};
@@ -518,11 +542,23 @@ export default {
 
 	setItemInArray(array, item, fieldName, type = 'push') {
 		var findI = -1;
-		for (var i = 0; i < array.length; i++) {
+		/* for (var i = 0; i < array.length; i++) {
 			if (array[i][fieldName] == item[fieldName]) {
 				findI = i;
 			};
+		}; */
+		for (var i = 0; i < array.length; i++) {
+			var same = true
+			for (var j = 0; j < fieldName.length; j++) {
+				if(array[i][fieldName[j]]!=item[fieldName[j]]){
+					same = false
+				}
+			};
+			if(same==true){
+				findI = i;
+			}
 		};
+		console.log('findI',findI)
 		if (findI >= 0) {
 			array[findI] = item;
 		} else {

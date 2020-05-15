@@ -12,7 +12,7 @@
 					<view class="title">先领券后购物</view>
 					<view class="infor">
 						<view class="price">{{item.value}}</view>
-						<view class="tt">·满{{item.value}}元使用·</view>
+						<view class="tt">·满{{item.condition}}元使用·</view>
 						<!-- <view class="text fs12">({{item.lable}})</view> -->
 					</view>
 				</view>
@@ -22,15 +22,6 @@
 				<view class="getBtn pubColor center fs16" @click="Router.navigateTo({route:{path:'/pages/hongbao_Coupon/hongbao_Coupon'}})">一键领取</view>
 			</view>
 			
-			<view class="white pdtb15">
-				<view class="pdb10">使用规则</view>
-				<view class="xqInfor fs12">
-					<view class="">1、限西安酒便利全聚到使用；</view>
-					<view>2、每个手机号可领取一次；</view>
-					<view>3、优惠券有效期截止到2020年11月12日；</view>
-					<view>4、优惠券不可叠加使用，不找零，议价及大型团购不可参与；</view>
-				</view>
-			</view>
 			
 		</view>
 		

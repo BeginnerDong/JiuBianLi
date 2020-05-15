@@ -13,16 +13,16 @@
 				<view class="Rseach pubColor fs15" @click="search">搜索</view>
 			</view>
 			<view class="whiteBj category fs13 color9 flexRowBetween borderB1">
-				<view class="item on flexCenter" @click="zongheShow">综合</view>
-				<view class="item flexCenter">价格</view>
-				<view class="item flexCenter">推荐</view>
+				<view class="item  flexCenter" :class="zonghe?'on':''" @click="zongheShow">综合</view>
+				<view class="item flexCenter" :class="price?'on':''" @click="priceShow">价格</view>
+				<view class="item flexCenter" :class="tuijian?'on':''" @click="changeOrder">推荐</view>
 				<view class="item flexCenter"  @click="styleShow">
 					<image class="icon" style="width: 36rpx; height: 28rpx;" src="../../static/images/classification-icon13.png" mode=""></image>
 				</view>
 			</view>
 			<view class="zongheShow whiteBj" v-show="is_zongheShow">
-				<view class="item flexRowBetween" :class="num==1?'on':''" @click="changeNum('1')">
-					<view class="tt">综合排序</view>
+				<view class="item flexRowBetween"  :class="num==1?'on':''"  @click="changeNum('1')">
+					<view class="tt">综合排序{{num}}</view>
 					<image class="selIcon" src="../../static/images/classification-icon10.png" mode=""></image>
 				</view>
 				<view class="item flexRowBetween" :class="num==2?'on':''" @click="changeNum('2')">
@@ -30,23 +30,37 @@
 					<image class="selIcon" src="../../static/images/classification-icon10.png" mode=""></image>
 				</view>
 			</view>
+			
+			<view class="zongheShow whiteBj" v-show="is_priceShow">
+				<view class="item flexRowBetween" :class="num==1?'on':''" @click="changePrice('1')">
+					<view class="tt">由高到低</view>
+					<image class="selIcon" src="../../static/images/classification-icon10.png" mode=""></image>
+				</view>
+				<view class="item flexRowBetween" :class="num==2?'on':''" @click="changePrice('2')">
+					<view class="tt">由低到高</view>
+					<image class="selIcon" src="../../static/images/classification-icon10.png" mode=""></image>
+				</view>
+			</view>
 		</view>
-		<view class="black-bj" v-show="is_show" ></view>
+		<view class="black-bj" v-show="is_show"></view>
 		
 		<view class="pdlr4 pdt20 pdb15">
 			<view class="proList flex" v-show="!is_styleShow">
-				<view class="item" v-for="(item,index) in mainData" :key="index" 
-				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
-					<view class="pic">
+				<view class="item" v-for="(item,index) in mainData" :key="index" >
+					<view class="pic" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">{{item.title}}</view>
-						<view class="flex mgb10">
+						<view class="title avoidOverflow" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">{{item.title}}</view>
+						<view class="flex mgb10" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 							<view class="lab" v-if="item.combine_no!=''">组合装</view>
 						</view>
 						<view class="flexRowBetween">
-							<view class="price">{{item.price}}</view>
+							<view class="price" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">{{item.price}}</view>
 							<view class="adBtn" @click="addCar(index)">+</view>
 						</view>
 					</view>
@@ -55,17 +69,21 @@
 		
 			<view class="proList proList-row" v-show="is_styleShow">
 				<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index" 
-				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail'}})">
-					<view class="pic">
+				>
+					<view class="pic" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">{{item.title}}</view>
-						<view class="flex mgb10">
+						<view class="title avoidOverflow" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">{{item.title}}</view>
+						<view class="flex mgb10" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 							<view class="lab" v-if="item.combine_no!=''">组合装</view>
 						</view>
 						<view class="flexRowBetween B-price">
-							<view class="price">{{item.price}}</view>
+							<view class="price" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">{{item.price}}</view>
 							<view class="adBtn" @click="addCar(index)">+</view>
 						</view>
 					</view>
@@ -86,10 +104,14 @@
 				is_show:false,
 				proList:[{},{},{},{},{},{}],
 				is_zongheShow:false,
+				is_priceShow:false,
 				num:1,
 				is_styleShow:false,
 				mainData:[],
-				keywords:''
+				keywords:'',
+				tuijian:false,
+				price:false,
+				zonghe:true
 			}
 		},
 		
@@ -143,17 +165,73 @@
 			
 			zongheShow(){
 				const self = this;
-				self.is_show = !self.is_show;
-				self.is_zongheShow = !self.is_zongheShow
+				//self.num = -1;
+				self.is_show = true;
+				self.is_zongheShow = true
+				self.is_priceShow = false
 			},
+			
+			priceShow(){
+				const self = this;
+				//self.num = -1;
+				self.is_show = true;
+				self.is_zongheShow = false
+				self.is_priceShow = true
+			},
+			
+			changeOrder(){
+				const self = this;
+				self.price = false;
+				self.tuijian = true;
+				self.zonghe = false;
+				self.order = {
+					listorder:'desc'
+				};
+				self.getMainData(true)
+			},
+			
 			changeNum(num){
 				const self = this;
+				self.price = false;
+				self.tuijian = false;
+				self.zonghe = true;
 				if(num!=self.num){
-					self.num = num
-				}
-				self.is_show = !self.is_show
-				self.is_zongheShow = !self.is_zongheShow
+					self.num = num;
+					if(num==1){
+						self.order = {}
+					}else if(num==2){
+						self.order = {
+							sale_count:'desc'
+						}
+					}
+					self.is_show = !self.is_show
+					self.is_zongheShow = !self.is_zongheShow
+					self.getMainData(true)
+				};
 			},
+			
+			changePrice(num){
+				const self = this;
+				self.price = true;
+				self.tuijian = false;
+				self.zonghe = false;
+				if(num!=self.num){
+					self.num = num;
+					if(num==1){
+						self.order = {
+							price:'desc'
+						}
+					}else if(num==2){
+						self.order = {
+							price:'asc'
+						}
+					}
+					self.is_show = !self.is_show
+					self.is_priceShow = !self.is_priceShow
+					self.getMainData(true)
+				};
+			},
+			
 			styleShow(){
 				const self = this;
 				self.is_styleShow = !self.is_styleShow;
@@ -161,7 +239,7 @@
 			
 			deleteText(){
 				const self = this;
-				self.submitData.keywords = ''
+				self.keywords = ''
 			},
 			
 			getMainData(isNew) {
@@ -180,6 +258,9 @@
 				postData.searchItem = {
 					thirdapp_id: 2,
 					title:['LIKE',['%'+self.keywords+'%']]
+				};
+				if(JSON.stringify(self.order)!='{}'){
+					postData.order = self.order
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {

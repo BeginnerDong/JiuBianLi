@@ -253,7 +253,7 @@
 				}; */
 				postData.tokenFuncName = 'getProjectToken',
 				postData.data = {
-					price:parseFloat(0.01).toFixed(2),
+					price:parseFloat(self.price).toFixed(2),
 					level:2
 				}
 				const callback = (res) => {
@@ -261,7 +261,7 @@
 						self.orderId = res.info.id;
 						self.pay = {
 							wxAppPay:{
-								price:self.price.toFixed(2)
+								price:parseFloat(self.price).toFixed(2)
 							}
 						};
 						uni.setStorageSync('payData',self.pay)

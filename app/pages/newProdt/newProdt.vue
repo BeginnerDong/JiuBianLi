@@ -31,9 +31,10 @@
 				<view class="banner-box pdb15">
 					<view class="banner">
 						<swiper class="swiper-box flex" indicator-dots="true" autoplay="true" interval="3000" duration="1000"  indicator-active-color="#FF2121">
-							<block v-for="(item,index) in labelData" :key="index">
-								<swiper-item class="swiper-item">
-									<image :src="item" class="slide-image"/>
+							<block v-for="(item,index) in bannerData" :key="index">
+								<swiper-item class="swiper-item" :data-url="item.url"
+								  @click="Router.navigateTo({route:{path:$event.currentTarget.dataset.url}})">
+									<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" class="slide-image"/>
 								</swiper-item>
 							</block>
 						</swiper>
@@ -47,7 +48,8 @@
 		
 		<view class="pdlr4 pdt20 pdb15">
 			<view class="proList flex">
-				<view class="item" v-for="(item,index) in mainData" :key="index" @click="Router.redirectTo({route:{path:'/pages/prodetail/prodetail'}})">
+				<view class="item" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="pic">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
@@ -111,6 +113,7 @@
 				mainData:[],
 				cityIndex:-1,
 				allCityData:[],
+				bannerData:[]
 			}
 		},
 		
@@ -130,6 +133,38 @@
 		},
 		
 		methods: {
+			
+			getBannerData() {
+				const self = this;
+				self.bannerData = [];
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					city_id:self.city_id
+				};
+				postData.getBefore = {
+					caseData: {
+						tableName: 'Label',
+						searchItem: {
+							title: ['=', ['新品轮播']],
+						},
+						middleKey: 'parentid',
+						key: 'id',
+						condition: 'in',
+					},
+				};
+				postData.order = {
+					listorder:'desc'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.bannerData.push.apply(self.bannerData, res.info.data)
+					}
+					console.log('self.bannerData', self.bannerData)
+					self.$Utils.finishFunc('getBannerData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
 			
 			changeCity(e){
 				const self = this;
@@ -157,13 +192,13 @@
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
 						if(uni.getStorageSync('city_id')>0){
-							var findCity = self.$Utils.findItemInArray(res.info.data, 'title', uni.getStorageSync('city'));
+							var findCity = self.$Utils.findItemInArrayOne(res.info.data, ['title'], uni.getStorageSync('city'));
 							self.cityData = findCity[1];
 							self.cityIndex = findCity[0];
 						
 							console.log('cityIndex',self.cityIndex)
 							self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
-							self.$Utils.loadAll(['getMainData'], self); 
+							self.$Utils.loadAll(['getMainData','getBannerData'], self); 
 						}else{
 							self.$Utils.loadAll(['getLocation'], self);	
 						}
@@ -185,7 +220,7 @@
 							return
 						}
 						self.city = res.address_component.city
-						var findCity = self.$Utils.findItemInArray(self.allCityData, 'title', self.city)
+						var findCity = self.$Utils.findItemInArrayOne(self.allCityData, ['title'], self.city)
 						console.log('findCity',findCity);
 						if (findCity) {
 							self.cityIndex = findCity[0];
@@ -193,7 +228,7 @@
 							self.city_id = self.cityData && self.cityData.id ? self.cityData.id : 4;
 							uni.setStorageSync('city_id',self.city_id);
 							uni.setStorageSync('city',self.cityData.title);
-							self.$Utils.loadAll(['getMainData'], self);
+							self.$Utils.loadAll(['getMainData','getBannerData'], self);
 						} else {
 							uni.showModal({
 								title: '提示',

@@ -3,18 +3,18 @@
 		
 		<view class="pdlr4 pdt15">
 			<view class="proList proList-row">
-				<view class="fs13 pdb10">促销活动说明：50°汾阳王青花10 500ml 98/2瓶 买一送一</view>
+				<view class="fs13 pdb10">促销活动说明：{{mainData.title}} {{mainData.combine_price}}/{{mainData.combine_count}}瓶</view>
 				<view class="item flexRowBetween">
 					<view class="pic">
-						<image src="../../static/images/home-img10.png" mode=""></image>
+						<image :src="mainData.mainImg&&mainData.mainImg[0]?mainData.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+						<view class="title avoidOverflow">{{mainData.title}}</view>
 						
 						<view class="flexRowBetween B-price">
 							<view class="flex pubColor">
 								<view class="fs11">促销价：</view>
-								<view class="price fs14">56.00</view>
+								<view class="price fs14">{{mainData.combine_price}}</view>
 							</view>
 							<view class="numBox flex">
 								<view @click="counter('-')">-</view>
@@ -32,17 +32,17 @@
 				<view class="fs13 pdb10">本促销包含以下商品</view>
 				<view class="item flexRowBetween">
 					<view class="pic">
-						<image src="../../static/images/home-img10.png" mode=""></image>
+						<image :src="mainData.mainImg&&mainData.mainImg[0]?mainData.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="title avoidOverflow">50°汾阳王青花10 500ml</view>
+						<view class="title avoidOverflow">{{mainData.title}}</view>
 						
 						<view class="flexRowBetween B-price">
 							<view class="flex pubColor">
 								<view class="fs11">促销价：</view>
-								<view class="price fs14">56.00</view>
+								<view class="price fs14">{{mainData.price}}</view>
 							</view>
-							<view class="flexEnd">×2</view>
+							<view class="flexEnd">×{{mainData.count}}</view>
 						</view>
 					</view>
 				</view>
@@ -51,11 +51,11 @@
 		
 		<view class="fxB-btn whiteBj">
 			<view class="flexRowBetween fs12">
-				<view class="item flexCenter">数量：<text class="red">1组</text></view>
-				<view class="item flexCenter">总价：<text class="red">￥98.00</text></view>
-				<view class="item flexCenter">节省：<text class="red">￥138.00</text></view>
+				<view class="item flexCenter">数量：<text class="red">{{count}}组</text></view>
+				<view class="item flexCenter">总价：<text class="red">￥{{totalPrice}}</text></view>
+				<!-- <view class="item flexCenter">节省：<text class="red">￥138.00</text></view> -->
 			</view>
-			<view class="addBtn flexCenter pubBj white">加入购物车</view>
+			<view class="addBtn flexCenter pubBj white" @click="addCar">加入购物车</view>
 		</view>
 		
 	</view>
@@ -69,33 +69,95 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				count:1
+				count:1,
+				totalPrice:0,
+				mainData:{}
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.id = options.id;
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
 		methods: {
+			
+			
+			getMainData() {
+				const self = this;
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					id: self.id
+				};
+				postData.getAfter = {
+					combineProduct:{
+						tableName:'Product',
+						middleKey:'combine_no',
+						key:'product_no',
+						searchItem:{
+							status:1,
+						},
+						condition:'='
+					},
+				};
+				 const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData = res.info.data[0];
+						self.mainData.isSelect = true;
+						self.mainData.behavior = 1;
+						self.mainData.count = self.mainData.combine_count;
+						self.totalPrice = self.mainData.combine_price
+						const regex = new RegExp('<img', 'gi');
+						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;"`);
+					} 
+					console.log('self.mainData', self.mainData)
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.productGet(postData, callback);
+			},
+			
 			counter(type) {
 				const self = this;			
 				if (type == '+') {
 					self.count++;
+					self.mainData.count += self.mainData.combine_count
 				} else {
 					if (self.count > 1) {
 						self.count--;
+						self.mainData.count -= self.mainData.combine_count
 					}
 				};			
 				self.countTotalPrice();
 			},
-			getMainData() {
+			
+			countTotalPrice(){
 				const self = this;
-				console.log('852369')
-				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				self.totalPrice = self.count*self.mainData.combine_price;
+				self.totalPrice = parseFloat(self.totalPrice).toFixed(2)
+			},
+			
+			addCar(){
+				const self = this;
+				console.log(self.mainData)
+				self.$Utils.setStorageArray('cartData',self.mainData,['id','behavior'],999);
+				uni.showModal({
+					title:'提示',
+					content:'加入购物车成功',
+					confirmText:'去购物车',
+					cancelText:'继续购物',
+					success(res) {
+						if(res.confirm){
+							self.Router.reLaunch({route:{path:'/pages/car/car'}})
+						}else{
+							uni.navigateBack({
+								delta:1
+							})
+						}
+					}
+				})
+			},
 		}
 	};
 </script>

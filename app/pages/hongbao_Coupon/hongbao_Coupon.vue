@@ -16,8 +16,8 @@
 				</view>
 				<view class="rr flexCenter">
 					<view class="lq-btn" @click="submit(index)" v-if="item.hasPick&&item.hasPick.length<item.limit">领取</view>
-					<view class="lq-btn" @click="submit(index)" style="color: #666;border: 1px solid #666;" 
-					v-if="item.hasPick&&item.hasPick.length==item.limit">已领取</view>
+					<view class="lq-btn"  style="color: #666;border: 1px solid #666;" 
+					v-if="item.hasPick&&item.hasPick.length>=item.limit">已领取</view>
 				</view>
 			</view>
 		</view>
@@ -89,6 +89,9 @@
 				const callback = (res) => {
 					if (res && res.solely_code == 100000) {
 						self.$Utils.showToast('领取成功', 'none')
+						setTimeout(function() {
+							self.getMainData(true)
+						}, 1000);
 					} else {
 						self.$Utils.showToast(res.msg, 'none')
 					}

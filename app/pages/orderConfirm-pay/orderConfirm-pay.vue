@@ -222,7 +222,7 @@
 								FuncName: 'add',
 								data: {
 									type:4,
-									count:parseFloat(self.scoreRatio*parseFloat(self.price)).toFixed(2),
+									count:parseFloat(self.rewardRatio*parseFloat(self.price)).toFixed(2),
 									trade_info:'下级消费返红包',
 									account:1,
 									thirdapp_id:2,

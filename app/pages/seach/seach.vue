@@ -6,7 +6,7 @@
 				<button class="seachBtn" type="button"></button>
 				<view class="input">
 					<input v-model="submitData.keywords" 
-					type="text" name="" value="" placeholder="乌苏 西风 洋河" 
+					type="text"  placeholder="乌苏 西风 洋河" 
 					placeholder-class="placeholder" />
 				</view>
 				<view class="delt flex" v-if="submitData.keywords!=''" @click="deleteText"><text>×</text></view>
@@ -67,6 +67,7 @@
 			
 			deleteText(){
 				const self = this;
+				console.log('222',self.submitData.keywords)
 				self.submitData.keywords = ''
 			},
 			

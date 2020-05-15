@@ -37,12 +37,13 @@
 					<view><image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
 				</view>
 				
-				<view class="pdt15 pdb15 flexRowBetween" @click="Router.navigateTo({route:{path:'/pages/promotion/promotion'}})">
+				<view class="pdt15 pdb15 flexRowBetween" v-if="mainData.combine_price!=''" 
+				@click="Router.navigateTo({route:{path:'/pages/promotion/promotion?id='+mainData.id}})">
 					<view class="flex">
 						<view class="ftw mgr15">促销</view>
 						<view class="flex fs12 C-canshu">
 							<view class="cux-Labe mgr10">组合购</view>
-							<view class="avoidOverflow" style="width: 400rpx;">50°汾阳青花10 500ml 98/2瓶</view>
+							<view class="avoidOverflow" style="width: 400rpx;">{{mainData.title}} {{mainData.combine_price}}/{{mainData.combine_count}}瓶</view>
 						</view>
 					</view>
 					<view><image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
@@ -54,7 +55,7 @@
 				<view class="flex">
 					<view class="ftw mgr15">规格</view>
 					<view class="flex fs13 C-canshu color6">
-						<view class="avoidOverflow">品牌、产地产区、规格、酒精度、净含量规格规格</view>
+						<view class="avoidOverflow">品牌、产地产区、规格、酒精度、净含量</view>
 					</view>
 				</view>
 				<view><image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
@@ -246,9 +247,9 @@
 		<view class="xqbotomBar flexRowBetween" v-if="!is_carNumShow">
 			<view class="left flexRowBetween">
 				<view class="ite" @click="collect()">
-					<image :src="mainData.collectMe.length>0&&mainData.collectMe[0].status==1?
+					<image :src="mainData.collectMe&&mainData.collectMe.length>0&&mainData.collectMe[0].status==1?
 					'../../static/images/details-icon7-a.png':'../../static/images/details-icon7.png'" mode=""></image>
-					<view>{{mainData.collect.length}}人</view>
+					<view>{{mainData.collectMe?mainData.collect.length:''}}人</view>
 				</view>
 				<view class="ite" @click="callPhone">
 					<image src="../../static/images/details-icon8.png" mode=""></image>
@@ -267,16 +268,16 @@
 		<view class="xqbotomBar flexRowBetween" v-if="is_carNumShow">
 			<view class="left flexRowBetween">
 				<view class="ite">
-					<image :src="mainData.collectMe.length>0&&mainData.collectMe[0].status==1?
+					<image :src="mainData.collectMe&&mainData.collectMe.length>0&&mainData.collectMe[0].status==1?
 					'../../static/images/details-icon7-a.png':'../../static/images/details-icon7.png'" mode=""></image>
-					<view>{{mainData.collect.length}}人</view>
+					<view>{{mainData.collectMe?mainData.collect.length:''}}人</view>
 				</view>
 				<view class="ite" @click="callPhone">
 					<image src="../../static/images/details-icon8.png" mode=""></image>
 					<view>客服</view>
 				</view>
 				<view class="ite pr" @click="Router.redirectTo({route:{path:'/pages/car/car'}})">
-					<view class="car-num">{{mainData.count}}</view>
+					<view class="car-num">{{count}}</view>
 					<image src="../../static/images/details-icon9.png" mode=""></image>
 					<view>购物车</view>
 				</view>
@@ -284,13 +285,50 @@
 			<view class="flexCenter" style="width: 38%;">
 				<view class="numBox flex">
 					<view @click="counter('-')">-</view>
-					<view class="num pubColor">{{mainData.count}}</view>
+					<view class="num pubColor">{{count}}</view>
 					<view class="pubBj" style="color:  white;" @click="counter('+')">+</view>
 				</view>
 			</view>
 		</view>
 		<!-- 底部菜单按钮 end -->
 		
+		<view class="specsShow whiteBj pdlr4" v-if="is_combineShow">
+			<view class="closebtn fs18 color6 pdr10 pdl10 mgt5" @click="combineShow">×</view>
+			<view class="pdt15 pdb15 center borderB1">选择促销</view>
+			<view class="editLine fs13">
+				<view class="item pdtb10 borderB1" @click="Router.navigateTo({route:{path:'/pages/promotion/promotion?id='+mainData.id}})">
+					<view class="flex">
+						<view style="width: auto;">特价</view>
+						<view class="color6" style="margin-left: 20rpx;">{{mainData.title}} {{mainData.combine_price}}/{{mainData.combine_count}}瓶</view>
+					</view>
+				
+					<view class="flexRowBetween">
+						<view class="price">{{mainData.combine_price}}</view>
+						<view class="numBox flex">
+							
+							<view class="pubBj" style="color:  white;" >+</view>
+						</view>
+					</view>
+					
+				</view>
+				<view class="item pdtb10 borderB1">
+					<view>
+						<view class="ll color6">不参与促销</view>
+					</view>
+					
+					<view class="flexRowBetween">
+						<view class="price">{{mainData.price}}</view>
+						<view class="numBox flex">
+							<view @click="counter('-')">-</view>
+							<view class="num pubColor">{{count}}</view>
+							<view class="pubBj" style="color:  white;" @click="counter('+')">+</view>
+						</view>
+					</view>
+					
+				</view>
+				
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -303,7 +341,7 @@
 				curr:1,
 				is_couponShow:false,
 				is_specsShow:false,
-				count:1,
+				count:0,
 				is_carNumShow:false,
 				mainData:{},
 				couponData:[],
@@ -314,7 +352,8 @@
 				halfSrc: '../../static/images/details-icon1-a.png',
 				messageData:[],
 				cartData:[],
-				goodRate:0
+				goodRate:0,
+				is_combineShow:false
 			}
 		},
 		
@@ -325,11 +364,11 @@
 			self.$Utils.loadAll(['getMainData','getCouponData','getLabelData'], self);
 		},
 		
-		onShow(){
+		/* onShow(){
 			const self = this;
 			self.cartData = self.$Utils.getStorageArray('cartData');
 			console.log('self.cartData',self.cartData)
-		},
+		}, */
 		
 		methods: {
 			
@@ -491,29 +530,44 @@
 				self.is_show =!self.is_show;
 				self.is_specsShow =!self.is_specsShow
 			},
+			combineShow(){
+				const self = this;
+				self.is_show =!self.is_show;
+				self.is_combineShow =!self.is_combineShow
+			},
 			counter(type) {
-				const self = this;			
+				const self = this;		
+				
 				if (type == '+') {
 					self.mainData.count++;
+					self.count++
 					console.log(232)
+					self.is_carNumShow =true;
 				} else {
 					if (self.mainData.count > 1) {
 						self.mainData.count--;
+						self.count--
+						
 					}
 				};
 				
-				self.$Utils.setStorageArray('cartData',self.mainData, 'id', 999);
-				console.log(2322)
-				self.cartData = self.$Utils.getStorageArray('cartData');
-				console.log(self.cartData)
+				self.$Utils.setStorageArray('cartData',self.mainData,['id','behavior'],999);
+				console.log('223',self.mainData.count)
+				
 			},
 			
 			carNumShow(){
 				const self = this;
+				if(self.mainData.combine_price!=''){
+					self.combineShow()
+					return
+				};
 				self.is_carNumShow =!self.is_carNumShow;
 				self.mainData.isSelect = true;
 				self.mainData.count = 1;
-				self.$Utils.setStorageArray('cartData',self.mainData, 'id', 999);
+				self.mainData.behavior = 0;
+				self.count = 1;
+				self.$Utils.setStorageArray('cartData',self.mainData,['id','behavior'],999);
 			},
 			
 			getMainData() {
@@ -524,6 +578,15 @@
 					id: self.id
 				};
 				postData.getAfter = {
+					combineProduct:{
+						tableName:'Product',
+						middleKey:'combine_no',
+						key:'product_no',
+						searchItem:{
+							status:1,
+						},
+						condition:'='
+					},
 					relationProduct:{
 						tableName:'Product',
 						middleKey:'category_id',
@@ -566,7 +629,8 @@
 				 const callback = (res) => {
 					if (res.info.data.length > 0) {
 						self.mainData = res.info.data[0];
-						
+						self.mainData.isSelect = true;
+						self.mainData.count = 0;
 						const regex = new RegExp('<img', 'gi');
 						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;"`);
 					} else {

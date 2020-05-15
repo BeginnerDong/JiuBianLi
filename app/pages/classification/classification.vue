@@ -262,7 +262,7 @@
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
 						if(uni.getStorageSync('city_id')>0){
-							var findCity = self.$Utils.findItemInArray(res.info.data, 'title', uni.getStorageSync('city'));
+							var findCity = self.$Utils.findItemInArrayOne(res.info.data, ['title'], uni.getStorageSync('city'));
 							self.cityData = findCity[1];
 							self.cityIndex = findCity[0];
 						
@@ -290,7 +290,7 @@
 							return
 						}
 						self.city = res.address_component.city
-						var findCity = self.$Utils.findItemInArray(self.allCityData, 'title', self.city)
+						var findCity = self.$Utils.findItemInArrayOne(self.allCityData, ['title'], self.city)
 						console.log('findCity',findCity);
 						if (findCity) {
 							self.cityIndex = findCity[0];
