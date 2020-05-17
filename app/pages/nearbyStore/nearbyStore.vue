@@ -14,7 +14,15 @@
 		<view class="storeList pdlr4">
 			<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index">
 				<view class="photo"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
-				<view class="infor" @click="choose(index)">
+				
+				<view class="infor" v-if="type&&type!=''" @click="choose(index)">
+					<view class="flexRowBetween">
+						<view class="title avoidOverflow">{{item.name}}</view>
+						<view class="fs12 color6">{{item.distance}}km</view>
+					</view>
+					<view class="adrs fs12 color6">{{item.address}}</view>
+				</view>
+				<view class="infor" v-else>
 					<view class="flexRowBetween">
 						<view class="title avoidOverflow">{{item.name}}</view>
 						<view class="fs12 color6">{{item.distance}}km</view>
@@ -41,12 +49,16 @@
 					thirdapp_id: 2,
 					user_type:1
 				},
-				address:''
+				address:'',
+				type:''
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
+			if(options.type){
+				self.type = options.type
+			};
 			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
 			self.$Utils.loadAll(['getLocation'], self);
 		},

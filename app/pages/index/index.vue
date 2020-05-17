@@ -81,7 +81,7 @@
 			<view class="indCoupon center pdlr4" @click="Router.navigateTo({route:{path:'/pages/hongbao/hongbao'}})" style="background:url(../../static/images/home-imgOne.png) no-repeat 0 0/100% 100%;">
 				<view class="title">双十一千万红包特惠</view>
 				<view class="flex red">
-					<view class="item" v-for="(item,index) in couponData" :key="index">
+					<view class="item" v-for="(item,index) in couponData" :key="index" v-if="index<4">
 						<view class="mny">{{item.value}}</view>
 						<view>满{{item.condition}}元使用</view>
 						<!-- <view>{{item.lable}}</view> -->

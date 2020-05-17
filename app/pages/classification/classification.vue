@@ -212,10 +212,10 @@
 				}else{
 					var target = self.mainData[index];
 					target.count = 1;
-					
+					target.behavior = 0;
 					target.isSelect = true;
 				}
-				self.$Utils.setStorageArray('cartData', target, 'id', 999);
+				self.$Utils.setStorageArray('cartData', target, ['id','behavior'], 999);
 				self.$Utils.showToast('已加入购物车', 'none', 1000);
 			},
 			

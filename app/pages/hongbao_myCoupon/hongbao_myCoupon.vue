@@ -17,8 +17,8 @@
 			</view>
 		</view>
 		
-		<view class="submitbtn" style="margin-top: 100rpx;">
-			<button class="btn" type="button"  @click="Router.back({route:{path:'/pages/hongbao_Coupon/hongbao_Coupon'}})">领取更多优惠</button>
+		<view class="submitbtn" style="margin-top: 100rpx;" >
+			<button class="btn" type="button"  @click="back">领取更多优惠</button>
 		</view>
 	</view>
 </template>
@@ -60,6 +60,13 @@
 		
 		methods: {
 			
+			back(){
+				const self = this;
+				uni.navigateBack({
+					delta:1
+				})
+			},
+			
 			getMainData(isNew) {
 				const self = this;
 				var now =  (new Date()).getTime();
@@ -77,8 +84,8 @@
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = {
 					thirdapp_id: 2,
-					use_step:1,
-					invalid_time:['>',now]
+					/* use_step:1,
+					invalid_time:['>',now] */
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {

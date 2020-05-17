@@ -5,7 +5,7 @@
 			<view class="whiteBj radius10 mgb15">
 				<view class="flex"><image class="w" style="" src="../../static/images/the-order-img.png" mode="widthFix"></image></view>
 				<view class="flexRowBetween pdtb15 mglr4"  
-				@click="Router.navigateTo({route:{path:'/pages/nearbyStore/nearbyStore'}})">
+				@click="Router.navigateTo({route:{path:'/pages/nearbyStore/nearbyStore?type=choose'}})">
 					<view class="fs13" v-if="addressData.address">
 						<view>{{addressData.address}}</view>
 						<view class="color6 flex mgt5">
