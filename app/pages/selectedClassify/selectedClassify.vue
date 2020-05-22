@@ -115,7 +115,7 @@
 						count: 0,
 						currentPage: 1,
 						is_page: true,
-						pagesize: 5
+						pagesize: 10
 					}
 				};
 				const postData = {};

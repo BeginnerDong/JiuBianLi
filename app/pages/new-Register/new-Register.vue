@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<view class="xqImg"   @click="Router.navigateTo({route:{path:'/pages/car/car'}})">
+		<view class="xqImg"   @click="Router.redirectTo({route:{path:'/pages/car/car'}})">
 			<image class="w" src="../../static/images/img2.png" mode="widthFix"></image>
 		</view>
 	</view>

@@ -99,9 +99,9 @@
 			<view class="mglr4 pdt15 pdb15">
 				<view class="ftw mgr15 pdb10">温馨提示</view>
 				<view class="xqInfor fs12">
-					<view>非酒水包装等问题，酒水一旦销售将不与退换</view>
-					<view>避免光照，通风换将存放</view>
-					<view>由于部分商品包装更换较为频繁，请您已收到的商品实物为准，图片近供参考</view>
+					<view>非酒水包装等问题，酒水一旦销售将不予退换</view>
+					<view>避免光照，通风地方存放</view>
+					<view>由于部分商品包装更换较为频繁，请您已收到的商品实物为准，图片仅供参考</view>
 				</view>
 			</view>
 			<view class="f5H5"></view>
@@ -651,7 +651,7 @@
 						count: 0,
 						currentPage: 1,
 						is_page: true,
-						pagesize: 5
+						pagesize: 10
 					}
 				};
 				const postData = {};

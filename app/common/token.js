@@ -269,7 +269,7 @@ class Token {
         if((postData&&postData.refreshToken)||!uni.getStorageSync('user_token')){
             uni.removeStorageSync('user_token');
             uni.removeStorageSync('user_info');
-            uni.redirectTo({
+            uni.reLaunch({
               url: '/pages/user/user'
             });
         }else{

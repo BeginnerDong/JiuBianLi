@@ -201,7 +201,7 @@
 			};
 			if (ops.from === 'button') {
 				return {
-					title: '酒便利',
+					title: '佐森酒业',
 					path: '/pages/index/index?user_no='+uni.getStorageSync('user_info').user_no, //点击分享的图片进到哪一个页面
 					success: function(res) {
 						// 转发成功

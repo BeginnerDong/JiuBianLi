@@ -21,9 +21,9 @@
 			</view>
 			
 			<view class="orderNav flex fs13 white mgb10">
-				<view class="tt on" @click="Router.navigateTo({route:{path:'/pages/index/index'}})">热门活动</view>
-				<view class="tt" @click="Router.navigateTo({route:{path:'/pages/newProdt/newProdt'}})">新品上市</view>
-				<view class="tt" @click="Router.navigateTo({route:{path:'/pages/selected/selected'}})">品类精选</view>
+				<view class="tt on" @click="Router.redirectTo({route:{path:'/pages/index/index'}})">热门活动</view>
+				<view class="tt" @click="Router.redirectTo({route:{path:'/pages/newProdt/newProdt'}})">新品上市</view>
+				<view class="tt" @click="Router.redirectTo({route:{path:'/pages/selected/selected'}})">品类精选</view>
 			</view>
 		
 			<!-- banner -->
@@ -78,8 +78,8 @@
 			</view>
 		
 			<!-- 特惠 -->
-			<view class="indCoupon center pdlr4" @click="Router.navigateTo({route:{path:'/pages/hongbao/hongbao'}})" style="background:url(../../static/images/home-imgOne.png) no-repeat 0 0/100% 100%;">
-				<view class="title">双十一千万红包特惠</view>
+			<view class="indCoupon center pdlr4" v-if="couponData.length>0" @click="Router.navigateTo({route:{path:'/pages/hongbao/hongbao'}})" style="background:url(../../static/images/home-imgOne.png) no-repeat 0 0/100% 100%;">
+				<view class="title"> 红包特惠</view>
 				<view class="flex red">
 					<view class="item" v-for="(item,index) in couponData" :key="index" v-if="index<4">
 						<view class="mny">{{item.value}}</view>
@@ -98,8 +98,8 @@
 				<view class="fs15 ftw">啤酒精选</view>
 				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
-			<view class="flexRowBetween jingxuan pijiu" v-if="labelOneData[0]">
-				<view class="w460 h300 pr radius10" style="background: #ffffed;"  :data-id="labelOneData[0].id"
+			<view class="flexRowBetween jingxuan pijiu" >
+				<view class="w460 h300 pr radius10" v-if="labelOneData[0]" style="background: #ffffed;"  :data-id="labelOneData[0].id"
 				@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="infor">
 						<view class="tit">{{labelOneData[0]?labelOneData[0].title:''}}</view>
@@ -112,7 +112,7 @@
 					</view>
 					<image class="B-fxBj" src="../../static/images/home-img7.png" alt=""/>
 				</view>
-				<view class="w220 h300 pr radius10" style="background: #effaec;"  :data-id="labelOneData[1].id"
+				<view class="w220 h300 pr radius10" v-if="labelOneData[1]" style="background: #effaec;"  :data-id="labelOneData[1].id"
 				@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="infor">
 						<view class="tit">{{labelOneData[1]?labelOneData[1].title:''}}</view>
@@ -126,7 +126,7 @@
 					<image class="B-fxBj" src="../../static/images/home-img8.png" mode=""/>
 				</view>
 			</view>
-			<view v-else style="width: 100%;text-align: center;">暂无数据</view>
+			<view v-if="!labelOneData[0]&&!labelOneData[1]" style="width: 100%;text-align: center;">暂无数据</view>
 		</view>
 		<view class="f5H5"></view>
 		
@@ -136,8 +136,8 @@
 				<view class="fs15 ftw">红酒精选</view>
 				<!-- <view class="color9 flexEnd fs12">查看更多<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view> -->
 			</view>
-			<view class="flexRowBetween jingxuan hongjiu" v-if="labelTwoData[0]">
-				<view class="w220 h300 pr radius10"  :data-id="labelTwoData[0].id"
+			<view class="flexRowBetween jingxuan hongjiu">
+				<view class="w220 h300 pr radius10"  v-if="labelTwoData[0]" :data-id="labelTwoData[0].id"
 				@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="infor">
 						<view class="tit">{{labelTwoData[0]?labelTwoData[0].title:''}}</view>
@@ -149,7 +149,7 @@
 						labelTwoData[0].mainImg[0].url:''" mode=""></image>
 					</view>
 				</view>
-				<view class="w460 h300 pr radius10" style="background: #ffffed;"  :data-id="labelTwoData[1].id"
+				<view class="w460 h300 pr radius10"  v-if="labelTwoData[1]" style="background: #ffffed;"  :data-id="labelTwoData[1].id"
 				@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="infor">
 						<view class="tit">{{labelTwoData[1]?labelTwoData[1].title:''}}</view>
@@ -162,7 +162,7 @@
 					</view>
 				</view>
 			</view>
-			<view v-else style="width: 100%;text-align: center;">暂无数据</view>
+			<view v-if="!labelTwoData[0]&&!labelTwoData[1]" style="width: 100%;text-align: center;">暂无数据</view>
 		</view>
 		<view class="f5H5"></view>
 		
@@ -174,7 +174,7 @@
 			</view>
 			
 			<view class="flexRowBetween baijiu" v-if="labelThreeData[0]">
-				<view class="w230 pr radius10"  :data-id="labelThreeData[0].id"
+				<view class="w230 pr radius10"  v-if="labelThreeData[0]"  :data-id="labelThreeData[0].id"
 				@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="infor">
 						<view class="tit">{{labelThreeData[0]?labelThreeData[0].title:''}}</view>
@@ -186,7 +186,7 @@
 					</view>
 				</view>
 				<view class="w450 pr">
-					<view class="item mgb5 one pr radius10" style="background: #ffead8;"  :data-id="labelThreeData[1].id"
+					<view class="item mgb5 one pr radius10"   v-if="labelThreeData[1]" style="background: #ffead8;"  :data-id="labelThreeData[1].id"
 					@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 						<view class="infor">
 							<view class="tit" style="color: #fc7b0c;">{{labelThreeData[1]?labelThreeData[1].title:''}}</view>
@@ -197,7 +197,7 @@
 						labelThreeData[1].mainImg[0].url:''" mode=""></image>
 						</view>
 					</view>
-					<view class="item mgb5 two pr radius10" style="background: #d6edff;"  :data-id="labelThreeData[2].id"
+					<view class="item mgb5 two pr radius10"   v-if="labelThreeData[2]" style="background: #d6edff;"  :data-id="labelThreeData[2].id"
 					@click="Router.navigateTo({route:{path:'/pages/jingxuanDetail/jingxuanDetail?id='+$event.currentTarget.dataset.id}})">
 						<view class="infor">
 							<view class="tit" style="color: #1a9aff;">{{labelThreeData[2]?labelThreeData[2].title:''}}</view>
@@ -211,7 +211,7 @@
 						
 				</view>
 			</view>
-			<view v-else style="width: 100%;text-align: center;">暂无数据</view>
+			<view v-if="!labelThreeData[0]&&!labelThreeData[1]&&!labelThreeData[2]" style="width: 100%;text-align: center;">暂无数据</view>
 		</view>
 		
 		<!-- 为您推荐 -->
@@ -479,6 +479,7 @@
 				};
 				self.$apis.labelGet(postData, callback);
 			},
+			
 			
 			getTypeData() {
 				const self = this;

@@ -24,17 +24,17 @@
 							<view class="title avoidOverflow">{{item.title}}</view>
 							
 							<view class="flexRowBetween B-price">
-								<view class="price fs14">{{item.price}}</view>
+								<view class="price fs14">{{item.unit_price}}</view>
 								<view class="flex">×{{item.count}}</view>
 							</view>
 						</view>
 					</view>
 					<view class="pdlr4">
-						<view class="flexEnd pdtb15">共{{item.count}}件商品 合计:￥{{item.price}}</view>
-						<div class="underBtn flexEnd pdb15" v-if="item.pay_status==0">
+						<view class="flexEnd pdtb15">共{{item.count}}件商品 合计:￥{{item.unit_price}}</view>
+						<div class="underBtn flexEnd pdb15" @click="pay(index)" v-if="item.pay_status==0">
 							<span class="Bbtn">确认兑换</span>
 						</div>
-						<view class="underBtn flexEnd pdb15" v-if="item.pay_status==1&&item.transport_status==1">
+						<view class="underBtn flexEnd pdb15" @click="orderUpdate(index)" v-if="item.pay_status==1&&item.transport_status==1">
 							<view class="Bbtn">确认收货</view>
 						</view>
 					</view>
@@ -81,6 +81,91 @@
 		
 		methods: {
 			
+			orderUpdate(index) {
+				const self = this;
+				uni.setStorageSync('canClick', false);
+				const postData = {};
+				postData.tokenFuncName = 'getProjectToken';
+				postData.data = {
+					transport_status:2,
+				};
+				postData.searchItem = {
+					id:self.mainData[index].id,
+				};
+				const callback = (data) => {
+					uni.setStorageSync('canClick', true);
+					if (data && data.solely_code == 100000) {
+						self.$Utils.showToast('操作成功','none');
+						setTimeout(function() {
+							self.getMainData(true)
+						}, 1000);
+					} else {
+						self.$Utils.showToast(data.msg,'none')
+					}
+				};
+				self.$apis.orderUpdate(postData, callback);
+			 },
+			
+			pay(index) {
+				const self = this;	
+				const postData = {};	
+				postData.score = {
+					price:parseFloat(self.mainData[index].unit_price)
+				};
+				postData.tokenFuncName = 'getProjectToken',
+				postData.searchItem = {
+					id: self.mainData[index].id
+				};	
+				const callback = (res) => {
+					if (res.solely_code == 100000) {
+						uni.setStorageSync('canClick', true);
+						if (res.info) {
+							const payCallback = (payData) => {
+								console.log('payData', payData)
+								if (payData == 1) {
+									uni.showToast({
+										title: '支付成功',
+										duration: 1000,
+										success: function() {
+											
+										}
+									});
+									setTimeout(function() {
+										self.getMainData(true)
+									}, 1000);
+								} else {
+									uni.setStorageSync('canClick', true);
+									uni.showToast({
+										title: '支付失败',
+										duration: 2000
+									});
+								};
+							};
+							self.$Utils.realPay(res.info, payCallback);
+						} else {
+							
+							uni.showToast({
+								title: '支付成功',
+								duration: 1000,
+								success: function() {
+									
+								}
+							});
+							setTimeout(function() {
+								self.getMainData(true)
+							}, 1000);
+						};
+					} else {
+						uni.setStorageSync('canClick', true);
+						uni.showToast({
+							title: res.msg,
+							duration: 2000
+						});
+					};
+				};
+				self.$apis.pay(postData, callback);
+			},
+			
 			change(current) {
 				const self = this;
 				if(current!=self.current){
@@ -91,6 +176,7 @@
 						delete self.searchItem.isremark;
 					}else if(self.current==2){
 						self.searchItem.pay_status=0
+						delete self.searchItem.transport_status;
 					}else if(self.current==3){
 						self.searchItem.pay_status=1
 						self.searchItem.transport_status=1

@@ -2,7 +2,7 @@
 	<view>
 		
 		<view class="mglr4 pdtb15">
-			<textarea v-model="submitData.content" placeholder="请输入您对酒便利的建议"  placeholder-class="placeholder"/>
+			<textarea v-model="submitData.content" placeholder="请输入您对佐森酒业的建议"  placeholder-class="placeholder"/>
 		</view>
 		
 		<view class="submitbtn" style="margin-top: 140rpx;">

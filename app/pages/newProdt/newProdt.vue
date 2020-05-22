@@ -21,9 +21,9 @@
 		</view>
 		<view class="pdlr4 whiteBj">
 			<view class="orderNav flex fs13 mgb10 color6">
-				<view class="tt" @click="Router.navigateTo({route:{path:'/pages/index/index'}})">热门活动</view>
-				<view class="tt on" @click="Router.navigateTo({route:{path:'/pages/newProdt/newProdt'}})">新品上市</view>
-				<view class="tt" @click="Router.navigateTo({route:{path:'/pages/selected/selected'}})">品类精选</view>
+				<view class="tt" @click="Router.redirectTo({route:{path:'/pages/index/index'}})">热门活动</view>
+				<view class="tt on" @click="Router.redirectTo({route:{path:'/pages/newProdt/newProdt'}})">新品上市</view>
+				<view class="tt" @click="Router.redirectTo({route:{path:'/pages/selected/selected'}})">品类精选</view>
 			</view>
 			
 			<!-- banner -->

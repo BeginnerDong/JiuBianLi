@@ -21,9 +21,9 @@
 		</view>
 		<view class="pdlr4 whiteBj">
 			<view class="orderNav flex fs13 pdb10 color6">
-				<view class="tt" @click="Router.navigateTo({route:{path:'/pages/index/index'}})">热门活动</view>
-				<view class="tt" @click="Router.navigateTo({route:{path:'/pages/newProdt/newProdt'}})">新品上市</view>
-				<view class="tt on" @click="Router.navigateTo({route:{path:'/pages/selected/selected'}})">品类精选</view>
+				<view class="tt" @click="Router.redirectTo({route:{path:'/pages/index/index'}})">热门活动</view>
+				<view class="tt" @click="Router.redirectTo({route:{path:'/pages/newProdt/newProdt'}})">新品上市</view>
+				<view class="tt on" @click="Router.redirectTo({route:{path:'/pages/selected/selected'}})">品类精选</view>
 			</view>
 		</view>
 		
@@ -52,7 +52,7 @@
 					</view>
 					<view class="font13 name">{{item.title}}</view>
 				</view>
-				<view class="font14 pdtb15" :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id}})">真材细做，货真价实-信远斋桂花酸梅汤</view>
+				<view class="font14 pdtb15" :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id}})">{{item.title}}</view>
 				<view class="imgbox">
 					<view v-for="(c_item,c_index) in item.bannerImg" :class="item.bannerImg.length==1?'lisOne':(item.bannerImg.length==2?'lisTwo':'lisThree')">
 						<image :src="c_item.url" :data-index="c_index"  :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id+'&index='+$event.currentTarget.dataset.index}})" mode="aspectFill"></image>
@@ -255,7 +255,7 @@
 						count: 0,
 						currentPage: 1,
 						is_page: true,
-						pagesize: 5
+						pagesize: 10
 					}
 				};
 				const postData = {};

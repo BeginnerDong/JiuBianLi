@@ -21,15 +21,17 @@
 			</view>
 			
 			<view class="fs13 pdlr4 borderB1 flexRowBetween whiteBj">
-				<view class="orderNav flex" style="width:90% ;">
-					<view class="tt" v-for="(item,index) in typeData" :class="currId==item.id?'on':''" 
-					@click="changeCurr(item.id)"  :key="index" v-if="index<5">{{item.title}}</view>
+				<view class="orderNav">
+					<scroll-view scroll-x="true">
+						<view class="tt" v-for="(item,index) in typeData" :class="currId==item.id?'on':''"
+						@click="changeCurr(item.id)"  :key="index" v-if="index<5">{{item.title}}</view>
+					</scroll-view>
 				</view>
-				<view class="flexEnd navdian" style="width: 10%;" @click="moreClass">
+				<!-- <view class="flexEnd navdian" style="width: 10%;" @click="moreClass">
 					<span></span>
 					<span></span>
 					<span></span>
-				</view>
+				</view> -->
 			</view>
 			<view class="whiteBj category fs13 color9 flexRowBetween borderB1">
 				<view class="item flexCenter" @click="zongheShow" :style="orderItem=='zonghe'?'color:#FF2121':''">综合
@@ -68,8 +70,7 @@
 		<view class="pdlr4 pdt20 pdb15">
 			<view class="proList flex" v-show="!is_styleShow">
 				<view class="item" v-for="(item,index) in mainData" :key="index" >
-					<view class="pic" :data-id="item.id"
-				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
+					<view class="pic" :data-id="item.id" @click="toDetail($event.currentTarget.dataset.id)">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
@@ -86,8 +87,7 @@
 			</view>
 			<view class="proList proList-row" v-show="is_styleShow">
 				<view class="item flexRowBetween" v-for="(item,index) in mainData" :key="index">
-					<view class="pic" :data-id="item.id"
-				@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
+					<view class="pic" :data-id="item.id" @click="toDetail($event.currentTarget.dataset.id)">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
@@ -193,10 +193,15 @@
 		onShow() {
 			const self = this;
 			self.$Utils.loadAll(['getAllCity'], self);	
-			
 		},
 		
 		methods: {
+			
+			toDetail(id){
+				const self = this;
+				uni.setStorageSync('classificationId',self.currId);
+				self.Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+id}})
+			},
 			
 			addCar(index){
 				const self = this;
@@ -351,6 +356,11 @@
 						self.currId = self.typeData[0].id;
 						if(self.id){
 							self.currId = self.id;
+						};
+						if(uni.getStorageSync('classificationId')){
+							console.log('你好',uni.getStorageSync('classificationId'))
+							self.currId = uni.getStorageSync('classificationId')
+							uni.removeStorageSync('classificationId')
 						}
 					}
 					console.log('self.typeData', self.typeData)
@@ -361,14 +371,14 @@
 			
 			getMainData(isNew) {
 				const self = this;
-				self.mainData = [];
+				//self.mainData = [];
 				if (isNew) {
 					self.mainData = [];
 					self.paginate = {
 						count: 0,
 						currentPage: 1,
 						is_page: true,
-						pagesize: 5
+						pagesize: 10
 					}
 				};
 				const postData = {};
@@ -446,8 +456,9 @@
 	@import "../../assets/style/seach.css";
 	@import "../../assets/style/proList.css";
 	page{padding-bottom: 110rpx;background: #F5F5F5;}
-	.orderNav .tt{width: auto; margin-right:50rpx;}
-	
+	.orderNav{width: 100%;}
+	.orderNav scroll-view{width: 100%;white-space: nowrap;}
+	.orderNav .tt{width: auto; margin-right:50rpx; display: inline-block!important;}
 	.navdian span{width: 10rpx;height: 10rpx;border-radius: 50%;background: #FF2121;margin: 0 4rpx;}
 	.category .item{width: 25%; border-right: 1px solid #eee;}
 	.category .item:last-child{border-right:0 ;}

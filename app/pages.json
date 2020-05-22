@@ -3,7 +3,7 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "东轩酒行",//设置页面标题文字
+				"navigationBarTitleText": "佐森酒业",//设置页面标题文字
 				"onReachBottomDistance":100
 				// "navigationStyle":"custom" //标题隐藏
 			}
@@ -11,14 +11,14 @@
 		{
 			"path": "pages/newProdt/newProdt",
 			"style": {
-				"navigationBarTitleText": "酒便利",
+				"navigationBarTitleText": "佐森酒业",
 				"onReachBottomDistance":100
 			}
 		},
 		{
 			"path": "pages/selected/selected",
 			"style": {
-				"navigationBarTitleText": "酒便利",
+				"navigationBarTitleText": "佐森酒业",
 				"onReachBottomDistance":100
 			}
 		},
@@ -309,7 +309,7 @@
 	
 	"globalStyle": {
 		"navigationBarTextStyle": "white",//导航栏文字蓝色
-		"navigationBarTitleText": "酒便利",
+		"navigationBarTitleText": "佐森酒业",
 		"navigationBarBackgroundColor": "#ff2121"
 	},
 	"condition": { //模式配置，仅开发期间生效
