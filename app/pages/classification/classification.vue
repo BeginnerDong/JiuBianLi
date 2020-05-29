@@ -24,14 +24,9 @@
 				<view class="orderNav">
 					<scroll-view scroll-x="true">
 						<view class="tt" v-for="(item,index) in typeData" :class="currId==item.id?'on':''"
-						@click="changeCurr(item.id)"  :key="index" v-if="index<5">{{item.title}}</view>
+						@click="changeCurr(item.id)"  :key="index">{{item.title}}</view>
 					</scroll-view>
 				</view>
-				<!-- <view class="flexEnd navdian" style="width: 10%;" @click="moreClass">
-					<span></span>
-					<span></span>
-					<span></span>
-				</view> -->
 			</view>
 			<view class="whiteBj category fs13 color9 flexRowBetween borderB1">
 				<view class="item flexCenter" @click="zongheShow" :style="orderItem=='zonghe'?'color:#FF2121':''">综合
@@ -179,6 +174,7 @@
 			};
 			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
 			//self.$Utils.loadAll(['getTypeData'], self);
+			self.$Utils.loadAll(['getAllCity'], self);	
 		},
 		
 		onReachBottom() {
@@ -192,7 +188,7 @@
 		
 		onShow() {
 			const self = this;
-			self.$Utils.loadAll(['getAllCity'], self);	
+			
 		},
 		
 		methods: {
@@ -364,7 +360,7 @@
 						}
 					}
 					console.log('self.typeData', self.typeData)
-					self.getMainData()
+					self.getMainData(true)
 				};
 				self.$apis.labelGet(postData, callback);
 			},

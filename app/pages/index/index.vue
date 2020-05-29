@@ -304,12 +304,12 @@
 			if(options.user_no){
 				uni.setStorageSync('parent_no',options.user_no)
 			};
-			self.$Utils.loadAll(['getMemberData','getCouponData'], self);	
+			self.$Utils.loadAll(['getMemberData','getCouponData','getAllCity'], self);	
 		},
 		
 		onShow() {
 			const self = this;
-			self.$Utils.loadAll(['getAllCity'], self);	
+			//self.$Utils.loadAll(['getAllCity'], self);	
 			
 		},
 		

@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="proList flex pdlr4 mgt15">
-			<view class="item" v-for="(item,index) in mainData" :key="index" :data-id="item.product[0].id"
+			<view class="item" v-for="(item,index) in mainData" v-if="item.product&&item.product[0]" :key="index" :data-id="item.product&&item.product[0]?item.product[0].id:''"
 			@click="Router.navigateTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">
 				<view class="pic">
 					<image :src="item.product&&item.product[0]&&item.product[0].mainImg

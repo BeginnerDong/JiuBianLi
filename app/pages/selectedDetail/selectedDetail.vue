@@ -2,12 +2,12 @@
 	<view>
 		
 		<view class="swiperContainer">
-		  <swiper @change="swiperChange" autoplay="true" interval="3000" duration="1000" >
+		  <swiper @change="swiperChange"  autoplay="false" interval="50000" duration="1000" >
 		      <swiper-item v-for="(item,index) in mainData.bannerImg" :key="index">
 		        <image :src="item.url" class="slide-image img"  />
 		      </swiper-item>
 		  </swiper>
-		  <view class="imageCount">{{current+1}}/{{mainData.bannerImg.length}}</view>
+		  <view class="imageCount">{{current+1}}/{{mainData.bannerImg?mainData.bannerImg.length:''}}</view>
 		</view>
 		
 		<view class="pdlr4 fixBox">
@@ -21,7 +21,7 @@
 					<view class="title avoidOverflow fs13">{{mainData.product&&mainData.product[0]?mainData.product[0].title:''}}</view>
 					<view class="flexRowBetween B-price">
 						<view class="price fs15">{{mainData.product&&mainData.product[0]?mainData.product[0].price:''}}</view>
-						<view class="goBtn fs12" :data-id="mainData.product[0].id"
+						<view class="goBtn fs12" :data-id="mainData.product&&mainData.product[0]?mainData.product[0].id:''"
 						@click="Router.redirectTo({route:{path:'/pages/prodetail/prodetail?id='+$event.currentTarget.dataset.id}})">去看看</view>
 					</view>
 				</view>

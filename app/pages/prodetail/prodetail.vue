@@ -37,7 +37,7 @@
 					<view><image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
 				</view>
 				
-				<view class="pdt15 pdb15 flexRowBetween" v-if="mainData.combine_price!=''" 
+				<view class="pdt15 pdb15 flexRowBetween" v-if="mainData.combine_price!=0" 
 				@click="Router.navigateTo({route:{path:'/pages/promotion/promotion?id='+mainData.id}})">
 					<view class="flex">
 						<view class="ftw mgr15">促销</view>
@@ -296,7 +296,7 @@
 			<view class="closebtn fs18 color6 pdr10 pdl10 mgt5" @click="combineShow">×</view>
 			<view class="pdt15 pdb15 center borderB1">选择促销</view>
 			<view class="editLine fs13">
-				<view class="item pdtb10 borderB1" @click="Router.navigateTo({route:{path:'/pages/promotion/promotion?id='+mainData.id}})">
+				<view class="item pdtb10 borderB1"  v-if="mainData.combine_price!=0"  @click="Router.navigateTo({route:{path:'/pages/promotion/promotion?id='+mainData.id}})">
 					<view class="flex">
 						<view style="width: auto;">特价</view>
 						<view class="color6" style="margin-left: 20rpx;">{{mainData.title}} {{mainData.combine_price}}/{{mainData.combine_count}}瓶</view>

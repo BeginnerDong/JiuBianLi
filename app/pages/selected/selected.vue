@@ -110,7 +110,9 @@
 				is_show:false,
 				typeData:[],
 				idArray:[],
-				mainData:[]
+				mainData:[],
+				cityIndex:-1,
+				allCityData:[],
 			}
 		},
 		
@@ -139,6 +141,8 @@
 				uni.setStorageSync('city',item.title);
 				self.$Utils.loadAll(['getAllCity'], self);	
 			},
+			
+			
 			
 			getAllCity() {
 				const self = this;
