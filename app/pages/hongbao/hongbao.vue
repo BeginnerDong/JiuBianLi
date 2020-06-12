@@ -3,8 +3,8 @@
 		<view class="pdlr4 pubBj hbCont">
 			
 			<view class="bigTit center white">
-				<view class="fs20 tit">双十一</view>
-				<view class="tex">千万红包特惠</view>
+				<!-- <view class="fs20 tit">双十一</view> -->
+				<view class="tex">满减红包大派送</view>
 			</view>
 			
 			<view class="quanList center flexRowBetween pubColor">

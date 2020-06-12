@@ -79,7 +79,7 @@
 		
 			<!-- 特惠 -->
 			<view class="indCoupon center pdlr4" v-if="couponData.length>0" @click="Router.navigateTo({route:{path:'/pages/hongbao/hongbao'}})" style="background:url(../../static/images/home-imgOne.png) no-repeat 0 0/100% 100%;">
-				<view class="title"> 红包特惠</view>
+				<view class="title">满减红包大派送</view>
 				<view class="flex red">
 					<view class="item" v-for="(item,index) in couponData" :key="index" v-if="index<4">
 						<view class="mny">{{item.value}}</view>

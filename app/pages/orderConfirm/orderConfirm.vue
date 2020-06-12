@@ -374,7 +374,7 @@
 				
 				
 				for (var i = 0; i < self.mainData.length; i++) {
-					self.totalPrice += self.mainData[i].product.behavior==1?parseFloat(self.mainData[i].product.combine_price):parseFloat(self.mainData[i].product.price);
+					self.totalPrice += self.mainData[i].product.behavior==1?parseFloat(self.mainData[i].product.combine_price)*self.mainData[i].count:parseFloat(self.mainData[i].product.price)*self.mainData[i].count;
 					
 				};
 				

@@ -31,7 +31,20 @@ export default {
 		http.HTTP(allParams);
 	},
 
-
+	
+	getParent(param, callback) {
+	
+		var allParams = {
+			url: 'Project/Solely/getParent',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
 	bindShop(param, callback) {
 
 		var allParams = {
