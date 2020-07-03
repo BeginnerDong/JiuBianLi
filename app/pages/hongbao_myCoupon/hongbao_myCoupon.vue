@@ -84,8 +84,8 @@
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = {
 					thirdapp_id: 2,
-					/* use_step:1,
-					invalid_time:['>',now] */
+					use_step:1,
+					invalid_time:['>',now]
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {

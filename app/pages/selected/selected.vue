@@ -52,7 +52,9 @@
 					</view>
 					<view class="font13 name">{{item.title}}</view>
 				</view>
-				<view class="font14 pdtb15" :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id}})">{{item.title}}</view>
+				<view class="font14 pdtb15" :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id}})">
+					{{item.description}}
+				</view>
 				<view class="imgbox">
 					<view v-for="(c_item,c_index) in item.bannerImg" :class="item.bannerImg.length==1?'lisOne':(item.bannerImg.length==2?'lisTwo':'lisThree')">
 						<image :src="c_item.url" :data-index="c_index"  :data-id="item.id" @click="Router.navigateTo({route:{path:'/pages/selectedDetail/selectedDetail?id='+$event.currentTarget.dataset.id+'&index='+$event.currentTarget.dataset.index}})" mode="aspectFill"></image>

@@ -62,7 +62,8 @@
 				postData.tokenFuncName = 'getProjectToken';
 				postData.searchItem = {
 					use_step: 1,
-					type: ['in', [1, 2]]
+					type: ['in', [1, 2]],
+					invalid_time:['>',now]
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {

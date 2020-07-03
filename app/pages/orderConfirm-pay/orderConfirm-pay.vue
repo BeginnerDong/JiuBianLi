@@ -253,17 +253,18 @@
 									timestamp:res.info.timeStamp,   //时间戳
 									sign:res.info.paySign.substring(0,30)
 								}
-								var orderInfo = JSON.stringify(obj);
+								var orderInfo = obj;
 							}else{
 								var orderInfo = res.info
 							}
 							
-							console.log(res.info);
+							console.log('orderInfo',orderInfo);
 							uni.requestPayment({
 								
 							    provider: self.num==2?'wxpay':'alipay',
 							    orderInfo:orderInfo, //微信、支付宝订单数据
 							    success: function (res) {
+									console.log(333)
 							        console.log('success:' + JSON.stringify(res));
 									uni.showToast({
 										title: '支付成功',
@@ -285,11 +286,13 @@
 									}
 							    },
 							    fail: function (err) {
+									console.log(333)
 							        console.log('fail:' + JSON.stringify(err));
 									uni.setStorageSync('canClick', true);
 									uni.showToast({
-										title: '支付失败',
-										duration: 2000
+										title:  JSON.stringify(err),
+										duration: 2000,
+										icon:'none'
 									});
 							    },
 								complete: function (err) {

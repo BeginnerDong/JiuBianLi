@@ -91,7 +91,7 @@
 						</view>
 						<view class="rr fs12" v-if="couponData.length>0&&chooseCoupon.length==0"
 						@click="Router.navigateTo({route:{path:'/pages/order-useCoupon/order-useCoupon'}})">
-							<view class="color9 pubColor" style="color:#ff2121">{{couponData.length}}张优惠券可用</view>
+							<view class="color9 pubColor" style="color:#ff2121"></view>
 							<image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image>
 						</view>
 						<view class="rr fs12" v-if="couponData.length>0&&chooseCoupon.length>0"

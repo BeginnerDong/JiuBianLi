@@ -1,7 +1,7 @@
 <template>
 	<view>
 		
-		<view class="swiperContainer">
+		<view class="swiperContainer" style="bottom: 150px;top: 44px;">
 		  <swiper @change="swiperChange"  autoplay="false" interval="50000" duration="1000" >
 		      <swiper-item v-for="(item,index) in mainData.bannerImg" :key="index">
 		        <image :src="item.url" class="slide-image img"  />
