@@ -37,7 +37,7 @@
 					<view><image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
 				</view>
 				
-				<view class="pdt15 pdb15 flexRowBetween" @click="Router.navigateTo({route:{path:'/pages/promotion/promotion'}})">
+				<!-- <view class="pdt15 pdb15 flexRowBetween" @click="Router.navigateTo({route:{path:'/pages/promotion/promotion'}})">
 					<view class="flex">
 						<view class="ftw mgr15">促销</view>
 						<view class="flex fs12 C-canshu">
@@ -46,7 +46,7 @@
 						</view>
 					</view>
 					<view><image class="arrowR" src="../../static/images/arrow-icon.png" mode=""></image></view>
-				</view>
+				</view> -->
 			</view>
 			<view class="f5H5"></view>
 			
